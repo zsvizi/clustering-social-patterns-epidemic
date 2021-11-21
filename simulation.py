@@ -47,7 +47,7 @@ class Simulation:
                    "d": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                    "r": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                    "c": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
-        self.iv.update({"s": self.data.global_unit_set["age"]-self.iv["l1"]})
+        self.iv.update({"s": self.data.global_unit_set["age"] - self.iv["l1"]})
 
         self.t = np.linspace(0, 600, 600)
         self.output = []
@@ -77,8 +77,8 @@ class Simulation:
 
     def solve_model_plot(self, rvector):
         vector = get_contact_matrix_from_upper_triu(rvector=rvector,
-                                                          number_of_age_groups=16,
-                                                          age_vector=self.age_vector)
+                                                    number_of_age_groups=16,
+                                                    age_vector=self.age_vector)
 
         model = RostHungaryModel(init_values=self.iv, contact_matrix=np.reshape(vector, (16, 16)),
                                  parameters=self.params, to_solve=True)

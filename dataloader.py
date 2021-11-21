@@ -1,8 +1,8 @@
 import copy
 import json
-import numpy as np
 import os
-import pandas as pd
+
+import numpy as np
 import xlrd
 
 
@@ -23,7 +23,6 @@ class DataLoader:
         self.contact_types = np.array(["home", "school", "work", "other"])
         self._contact_data_file = ["./data/contact_" + c_type + ".xls" for c_type in self.contact_types]
         self._model_parameters_data_file = "./data/model_parameters.json"
-        self._init_data_file = None
         # Get values for data members
         self._get_data()
 
@@ -35,7 +34,6 @@ class DataLoader:
         self._get_age_data()
         self._get_contact_mtx()
         self._get_model_parameters_data()
-        self._get_init_data()
 
     def _get_age_data(self):
         """
@@ -138,27 +136,6 @@ class DataLoader:
                 self.model_parameters_data.update({param: np.array(param_value)})
             else:
                 self.model_parameters_data.update({param: param_value})
-
-    def _get_init_data(self):
-        """
-        Creates initial data attribute and fills with loaded data
-        init_data: dict, contains dictionaries like
-          {"state_1": np.array(globals.age),
-           "state_2": np.array(globals.age),
-           ...
-           "state_L": np.array(globals.age)
-          }
-        :return: None
-        """
-        init_data = dict()
-        if self._init_data_file is not None:
-            file_names = os.listdir(self._init_data_file)
-            for file in file_names:
-                df = pd.read_csv(os.path.join(self._init_data_file, file), header=[0, 1], index_col=0)
-                value = {state[0]: np.array(list(df[state[0]].iloc[1])).astype(int) for state in df.columns}
-                key = os.path.splitext(file)[0]
-                init_data.update({key: value})
-        self.init_data = None if self._init_data_file is None else init_data
 
     def _transform_matrix(self, matrix: np.ndarray, country: str):
         """
