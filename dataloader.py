@@ -19,12 +19,10 @@ class DataLoader:
         Constructor that defines file paths and loads all data
         """
         scale = "_eu"
-        self._travel_data_file = "./data/travel" + scale + ".xlsx"
         self._age_data_file = "./data/age_data" + scale + ".xlsx"
         self.contact_types = np.array(["home", "school", "work", "other"])
         self._contact_data_file = ["./data/contact_" + c_type + ".xls" for c_type in self.contact_types]
         self._model_parameters_data_file = "./data/model_parameters.json"
-        self._betas_data_file = "./data/betas_data.json"
         self._init_data_file = None
         # Get values for data members
         self._get_data()
@@ -140,10 +138,6 @@ class DataLoader:
                 self.model_parameters_data.update({param: np.array(param_value)})
             else:
                 self.model_parameters_data.update({param: param_value})
-
-        # Load beta parameters
-        with open(self._betas_data_file) as f:
-            self.betas_data = json.load(f)
 
     def _get_init_data(self):
         """
