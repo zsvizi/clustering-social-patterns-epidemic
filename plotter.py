@@ -47,4 +47,5 @@ def plot_contact_matrix(contact_matrix):
     corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
     ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
+    ax.invert_yaxis()
     plt.yticks(rotation=0)
