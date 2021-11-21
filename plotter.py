@@ -23,8 +23,8 @@ class Plotter:
             print("The country nearest to the centroid", c_idx, ":", self.data_tr.country_names[idx])
         plt.show()
 
-    def plot_heatmap_centroid(self, centroid_orig):
-        for idx, centroid in enumerate(centroid_orig):
+    def plot_heatmap_centroid(self, centroids):
+        for idx, centroid in enumerate(centroids):
             new_contact_mtx = np.zeros((16, 16))
             new_contact_mtx[self.data_tr.upper_tri_indexes] = centroid
             new_2 = new_contact_mtx.T

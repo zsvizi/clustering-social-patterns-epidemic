@@ -21,6 +21,8 @@ class DataTransformer:
         self.data_mtx_dict = dict()
         self.data_clustering = []
 
+        self.get_data_for_clustering()
+
     def get_data_for_clustering(self):
         for country in self.country_names:
             age_vector = self.data.age_data[country]["age"].reshape((-1, 1))
@@ -81,25 +83,29 @@ class Clustering:
 
 
 def main():
+    # Create data for clustering
     data_tr = DataTransformer()
-    data_tr.get_data_for_clustering()
 
+    # Reduce dimensionality
     pca = PCA(n_components=12)
     pca.fit(data_tr.data_clustering)
     data_pca = pca.transform(data_tr.data_clustering)
     print("Explained variance ratios:", pca.explained_variance_ratio_, "->", sum(pca.explained_variance_ratio_))
 
+    # Execute clustering
     clust = Clustering(data=data_pca)
     clust.run_clustering()
     clust.get_closest_points()
 
+    # Plot results for analysis
     plotter = Plotter(clustering=clust,
                       data_transformer=data_tr)
     plotter.plot_clustering()
-    centroid_orig = pca.inverse_transform(clust.centroids)
-    plotter.plot_heatmap_centroid(centroid_orig=centroid_orig)
+    centroids_orig = pca.inverse_transform(clust.centroids)
+    plotter.plot_heatmap_centroid(centroids=centroids_orig)
     plotter.plot_heatmap_closest()
 
+    # List cluster members
     for cluster in range(clust.n_cl):
         print("Cluster", cluster, "(" + plotter.colors[cluster] + ")", ":",
               {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]

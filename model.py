@@ -99,13 +99,6 @@ class RostHungaryModel:
                        self.is2_0, self.is3_0, self.ih_0, self.ic_0, self.icr_0, self.r_0, self.d_0, self.c_0]
         return np.array(init_values).flatten()
 
-    def get_max_number_of_ICU(self):
-        sum_ic = sum(self.solution[:, 11 * 16:12 * 16].T)
-        return max(sum_ic)
-
     def get_r0_value(self):
         r0generator = R0Generator(param=self.parameters)
         return r0generator.get_eig_val(self.contact_matrix) * self.parameters["beta"]
-
-    def get_final_size_distribution(self):
-        return self.solution[-1, -16:]
