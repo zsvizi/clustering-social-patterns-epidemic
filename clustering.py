@@ -26,8 +26,10 @@ class DataTransformer:
     def get_data_for_clustering(self):
         for country in self.country_names:
             age_vector = self.data.age_data[country]["age"].reshape((-1, 1))
-            contact_matrix = self.data.contact_data[country]["home"] + self.data.contact_data[country]["work"] + \
-                self.data.contact_data[country]["school"] + self.data.contact_data[country]["other"]
+            contact_matrix = self.data.contact_data[country]["home"] + \
+                self.data.contact_data[country]["work"] + \
+                self.data.contact_data[country]["school"] + \
+                self.data.contact_data[country]["other"]
             contact_home = self.data.contact_data[country]["home"]
 
             susceptibility = np.array([1.0] * 16)
@@ -49,7 +51,8 @@ class DataTransformer:
                            "home": simulation.beta * contact_home[self.upper_tri_indexes]
                            }
                  })
-            self.data_clustering.append(simulation.beta * contact_matrix[self.upper_tri_indexes])
+            self.data_clustering.append(
+                simulation.beta * contact_matrix[self.upper_tri_indexes])
         self.data_clustering = np.array(self.data_clustering)
 
 
@@ -90,7 +93,8 @@ def main():
     pca = PCA(n_components=12)
     pca.fit(data_tr.data_clustering)
     data_pca = pca.transform(data_tr.data_clustering)
-    print("Explained variance ratios:", pca.explained_variance_ratio_, "->", sum(pca.explained_variance_ratio_))
+    print("Explained variance ratios:", pca.explained_variance_ratio_,
+          "->", sum(pca.explained_variance_ratio_))
 
     # Execute clustering
     clust = Clustering(data=data_pca)
