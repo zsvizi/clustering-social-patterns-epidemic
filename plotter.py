@@ -31,12 +31,13 @@ class Plotter:
             new_2[self.data_tr.upper_tri_indexes] = centroid
 
             plot_contact_matrix(contact_matrix=new_2)
-            plt.title("Centroid" + str(idx))
+            plt.title("Centroid " + str(idx))
             plt.show()
 
     def plot_heatmap_closest(self):
         for idx, closest_idx in enumerate(self.clust.closest_point_idx):
-            new_contact_mtx = self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["contact_home"]
+            new_contact_mtx = self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["beta"] * \
+                self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["contact_full"]
             plot_contact_matrix(contact_matrix=new_contact_mtx)
             plt.title(self.data_tr.country_names[closest_idx])
             plt.show()
