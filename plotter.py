@@ -37,16 +37,19 @@ class Plotter:
     def plot_heatmap_closest(self):
         for idx, closest_idx in enumerate(self.clust.closest_point_idx):
             new_contact_mtx = self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["beta"] * \
-                self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["contact_full"]
+                              self.data_tr.data_all_dict[self.data_tr.country_names[closest_idx]]["contact_full"]
             plot_contact_matrix(contact_matrix=new_contact_mtx)
             plt.title(self.data_tr.country_names[closest_idx])
             plt.show()
 
+    def plot_contact_matrix(contact_matrix):
+        param_list = range(0, 16, 1)
+        corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
+        cmap = sns.diverging_palette(220, 10, as_cmap=True)
+        ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
+        ax.invert_yaxis()
+        plt.yticks(rotation=0)
 
-def plot_contact_matrix(contact_matrix):
-    param_list = range(0, 16, 1)
-    corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
-    cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
-    ax.invert_yaxis()
-    plt.yticks(rotation=0)
+
+
+
