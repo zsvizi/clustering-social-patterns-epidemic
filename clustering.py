@@ -1,4 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial.distance import pdist, squareform
+from scipy.cluster.hierarchy import linkage
+
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
@@ -20,10 +24,11 @@ class DataTransformer:
         self.data_all_dict = dict()
         self.data_mtx_dict = dict()
         self.data_clustering = []
-
         self.get_data_for_clustering()
+        self.contact_matrix = None
 
     def get_data_for_clustering(self):
+        global simulation
         for country in self.country_names:
             age_vector = self.data.age_data[country]["age"].reshape((-1, 1))
             contact_matrix = self.data.contact_data[country]["home"] + \
@@ -54,6 +59,15 @@ class DataTransformer:
             self.data_clustering.append(
                 simulation.beta * contact_matrix[self.upper_tri_indexes])
         self.data_clustering = np.array(self.data_clustering)
+
+    def get_distance_for_country_matrix(self, contact_matrix):
+        country_matrix = simulation.beta * contact_matrix[self.upper_tri_indexes]
+        dis = squareform(pdist(country_matrix))
+        plt.pcolormesh(dis)
+        plt.colorbar()
+        plt.xlim([0, len(country_matrix)])
+        plt.ylim([0, len(country_matrix)])
+        plt.show()
 
 
 class Clustering:
