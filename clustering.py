@@ -1,10 +1,9 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
-from scipy.cluster.hierarchy import linkage
-
+from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+import math
 
 from dataloader import DataLoader
 from plotter import Plotter
@@ -60,15 +59,6 @@ class DataTransformer:
                 simulation.beta * contact_matrix[self.upper_tri_indexes])
         self.data_clustering = np.array(self.data_clustering)
 
-    def get_distance_for_country_matrix(self, contact_matrix):
-        country_matrix = simulation.beta * contact_matrix[self.upper_tri_indexes]
-        dis = squareform(pdist(country_matrix))
-        plt.pcolormesh(dis)
-        plt.colorbar()
-        plt.xlim([0, len(country_matrix)])
-        plt.ylim([0, len(country_matrix)])
-        plt.show()
-
 
 class Clustering:
     def __init__(self, data):
@@ -97,6 +87,31 @@ class Clustering:
                         min_dist = dist
                         self.closest_point_idx[c_idx] = idx
         self.closest_points = self.data[np.array(self.closest_point_idx).astype(int), :2]
+
+    def euclidean_distance_for_clustering(self):
+        self.data = DataLoader
+        data_tr = DataTransformer()
+        size = len(data_tr.data_clustering)  # we have a square matrix
+        result = 0.0
+        for i in range(size):
+            for j in range(size):
+                d1 = float(data_tr.data_clustering[i])
+                d2 = float(data_tr.data_clustering[j])
+                dev = d1 - d2
+                result += pow(dev, 2)
+            result = math.sqrt(result)
+            return result
+
+    def get_pairwise_distance_for_clustering(self):
+        dist_matrix = []
+        self.data = DataLoader
+        data_tr = DataTransformer()
+        data_tr.data_clustering_size = len(data_tr.data_clustering)
+        for i in range(data_tr.data_clustering_size):
+            for j in range(data_tr.data_clustering_size):
+                dist = squareform(pdist(data_tr.data_clustering[i], data_tr.data_clustering[j]))
+                dist_matrix.append(dist)
+        return dist_matrix
 
 
 def main():

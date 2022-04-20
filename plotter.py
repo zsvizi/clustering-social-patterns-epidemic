@@ -29,7 +29,6 @@ class Plotter:
             new_contact_mtx[self.data_tr.upper_tri_indexes] = centroid
             new_2 = new_contact_mtx.T
             new_2[self.data_tr.upper_tri_indexes] = centroid
-
             plot_contact_matrix(contact_matrix=new_2)
             plt.title("Centroid " + str(idx))
             plt.show()
@@ -49,6 +48,17 @@ class Plotter:
         ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
         ax.invert_yaxis()
         plt.yticks(rotation=0)
+
+    def plot_distance(self, dist_matrix):
+        for i in range(self.data_tr.data_clustering_size):
+            for j in range(self.data_tr.data_clustering_size):
+                plt.figure(figsize=(5, 5))
+                plt.tick_params(axis='both', which='both', bottom=False, top=False)
+                plt.pcolormesh(dist_matrix)
+                plt.colorbar(dist_matrix)
+                plt.xlim([0, len(dist_matrix)])
+                plt.ylim([0, len(dist_matrix)])
+                plt.show()
 
 
 
