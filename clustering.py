@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 from dataloader import DataLoader
-from heatmap import compute_serial_matrix
+from heatmap import plot_heatmap
 from plotter import Plotter
 from simulation import Simulation
 
@@ -122,33 +122,9 @@ def main():
     data_pca = pca.transform(data_tr.data_clustering)
     print("Explained variance ratios:", pca.explained_variance_ratio_,
           "->", sum(pca.explained_variance_ratio_))
-    # print("data_clustering:", data_tr.data_clustering)
-    length = len(data_tr.data_clustering)
-    dist_matrix = squareform(pdist(data_tr.data_clustering))
-    plt.pcolormesh(dist_matrix)
-    plt.colorbar()
-    plt.xlim([0, length])
-    plt.ylim([0, length])
-    plt.show()
-    # print("The distance matrix:", dist_matrix)
-    label = KMeans(data_pca)
-    u_labels = np.unique(label)
-    for i in u_labels:
-        plt.scatter(data_pca[label == i, 0], data_pca[label == i, 1], label=i)
-        plt.legend()
-        plt.show()
-    # print(len(dist_matrix))
 
-    methods = ["ward", "single", "average", "complete"]
-    for method in methods:
-        print("Method:\t", method)
-        ordered_dist_matrix, res_order, res_linkage = compute_serial_matrix(dist_matrix, method)
-        plt.pcolormesh(ordered_dist_matrix)
-        plt.colorbar()
-        plt.xlim([0, len(dist_matrix)])
-        plt.ylim([0, len(dist_matrix)])
-        plt.show()
-        # print(squareform(dist_matrix))
+    # Plot heatmap
+    plot_heatmap(data_pca, data_tr)
 
     # Execute clustering
     clust = Clustering(data=data_pca)
