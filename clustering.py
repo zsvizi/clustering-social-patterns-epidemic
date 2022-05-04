@@ -86,7 +86,7 @@ class Clustering:
                     if min_dist is None or dist < min_dist:
                         min_dist = dist
                         self.closest_point_idx[c_idx] = idx
-                        self.closest_points = self.data[np.array(self.closest_point_idx).astype(int), :2]
+        self.closest_points = self.data[np.array(self.closest_point_idx).astype(int), :2]
 
     def get_distance_points(self, no_of_iterations):
         idx = np.random.choice(len(self.data), self.n_cl, replace=False)  # Randomly choosing Centroids
