@@ -41,14 +41,6 @@ class Plotter:
             plt.title(self.data_tr.country_names[closest_idx])
             plt.show()
 
-    def plot_contact_matrix(contact_matrix):
-        param_list = range(0, 16, 1)
-        corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
-        cmap = sns.diverging_palette(220, 10, as_cmap=True)
-        ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
-        ax.invert_yaxis()
-        plt.yticks(rotation=0)
-
     def plot_distance(self, dist_matrix):
         for i in range(self.data_tr.data_clustering_size):
             for j in range(self.data_tr.data_clustering_size):
@@ -61,5 +53,10 @@ class Plotter:
                 plt.show()
 
 
-
-
+def plot_contact_matrix(contact_matrix):
+    param_list = range(0, 16, 1)
+    corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
+    cmap = sns.diverging_palette(220, 10, as_cmap=True)
+    ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
+    ax.invert_yaxis()
+    plt.yticks(rotation=0)

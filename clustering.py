@@ -77,7 +77,6 @@ class Clustering:
         self.k_means_pred = k_means.predict(self.data)
         self.centroids = k_means.cluster_centers_
 
-
     def get_closest_points(self):
         self.closest_point_idx = (-1) * np.ones(self.n_cl).astype(int)
         for c_idx, centroid in enumerate(self.centroids):
@@ -130,7 +129,7 @@ def seriation(Z, N, cur_index):
     else:
         left = int(Z[cur_index - N, 0])
         right = int(Z[cur_index - N, 1])
-        return (seriation(Z, N, left) + seriation(Z, N, right))
+        return seriation(Z, N, left) + seriation(Z, N, right)
 
 
 def compute_serial_matrix(dist_matrix, method="ward"):
