@@ -23,6 +23,7 @@ class DataTransformer:
         self.data_all_dict = dict()
         self.data_mtx_dict = dict()
         self.data_clustering = []
+
         self.get_data_for_clustering()
         self.contact_matrix = None
 
