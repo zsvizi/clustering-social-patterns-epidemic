@@ -1,11 +1,9 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.spatial.distance import cdist, pdist, squareform
+
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-
+import numpy as np
+import heatmap
 from dataloader import DataLoader
-from heatmap import plot_heatmap
 from plotter import Plotter
 from simulation import Simulation
 
@@ -28,7 +26,6 @@ class DataTransformer:
         self.contact_matrix = None
 
     def get_data_for_clustering(self):
-        global simulation
         for country in self.country_names:
             age_vector = self.data.age_data[country]["age"].reshape((-1, 1))
             contact_matrix = self.data.contact_data[country]["home"] + \
@@ -89,29 +86,6 @@ class Clustering:
                         self.closest_point_idx[c_idx] = idx
         self.closest_points = self.data[np.array(self.closest_point_idx).astype(int), :2]
 
-    def get_distance_points(self, no_of_iterations):
-        idx = np.random.choice(len(self.data), self.n_cl, replace=False)  # Randomly choosing Centroids
-        centroids = self.data[idx, :]
-        distances = cdist(self.data, centroids, 'euclidean')
-        points = np.array([np.argmin(i) for i in distances])
-        for _ in range(no_of_iterations):
-            centroids = []
-            for idx in range(self.n_cl):
-                temp_cent = self.data[points == idx].mean(axis=0)
-                centroids.append(temp_cent)
-                centroids = np.vstack(centroids)
-                distances = cdist(self.data, centroids, 'euclidean')
-                points = np.array([np.argmin(i) for i in distances])
-                return points
-
-    def distance(self):
-        dist_matrix = np.zeros(16, 16)
-        length = self.data.shape
-        for i in range(length[0]):
-            for j in range(length[1]):
-                dist_matrix = squareform(pdist(self.data))
-        plt.imshow(dist_matrix)
-
 
 def main():
     # Create data for clustering
@@ -124,8 +98,9 @@ def main():
     print("Explained variance ratios:", pca.explained_variance_ratio_,
           "->", sum(pca.explained_variance_ratio_))
 
+
     # Plot heatmap
-    plot_heatmap(data_pca, data_tr)
+    heatmap.plot_heatmap(data_tr)
 
     # Execute clustering
     clust = Clustering(data=data_pca)

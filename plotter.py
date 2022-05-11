@@ -1,7 +1,9 @@
-import numpy as np
-import pandas as pd
+
 import seaborn as sns
 from matplotlib import pyplot as plt
+
+import numpy as np
+import pandas as pd
 
 
 class Plotter:
@@ -42,16 +44,19 @@ class Plotter:
             plt.title(self.data_tr.country_names[closest_idx])
             plt.show()
 
-    def plot_distance(self, dist_matrix):
-        for i in range(self.data_tr.data_clustering_size):
-            for j in range(self.data_tr.data_clustering_size):
-                plt.figure(figsize=(5, 5))
-                plt.tick_params(axis='both', which='both', bottom=False, top=False)
-                plt.pcolormesh(dist_matrix)
-                plt.colorbar(dist_matrix)
-                plt.xlim([0, len(dist_matrix)])
-                plt.ylim([0, len(dist_matrix)])
-                plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def plot_contact_matrix(contact_matrix):
@@ -61,3 +66,8 @@ def plot_contact_matrix(contact_matrix):
     ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
     ax.invert_yaxis()
     plt.yticks(rotation=0)
+
+
+
+
+
