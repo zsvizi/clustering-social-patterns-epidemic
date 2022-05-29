@@ -2,9 +2,10 @@
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import numpy as np
-import heatmap
+from heatmap import Hierarchical
 from dataloader import DataLoader
 from plotter import Plotter
+import pandas as pd
 from simulation import Simulation
 
 
@@ -23,7 +24,6 @@ class DataTransformer:
         self.data_clustering = []
 
         self.get_data_for_clustering()
-        self.contact_matrix = None
 
     def get_data_for_clustering(self):
         for country in self.country_names:
@@ -33,6 +33,9 @@ class DataTransformer:
                 self.data.contact_data[country]["school"] + \
                 self.data.contact_data[country]["other"]
             contact_home = self.data.contact_data[country]["home"]
+            contact_school = self.data.contact_data[country]["school"]
+            contact_work = self.data.contact_data[country]["work"]
+            contact_other = self.data.contact_data[country]["other"]
 
             susceptibility = np.array([1.0] * 16)
             susceptibility[:4] = self.susc
@@ -45,12 +48,18 @@ class DataTransformer:
                 {country: {"beta": simulation.beta,
                            "age_vector": age_vector,
                            "contact_full": contact_matrix,
-                           "contact_home": contact_home
+                           "contact_home": contact_home,
+                           "contact_school": contact_school,
+                           "contact_work": contact_work,
+                           "contact_other": contact_other
                            }
                  })
             self.data_mtx_dict.update(
                 {country: {"full": simulation.beta * contact_matrix[self.upper_tri_indexes],
-                           "home": simulation.beta * contact_home[self.upper_tri_indexes]
+                           "home": simulation.beta * contact_home[self.upper_tri_indexes],
+                           "school": simulation.beta * contact_school[self.upper_tri_indexes],
+                           "work": simulation.beta * contact_work[self.upper_tri_indexes],
+                           "other": simulation.beta * contact_other[self.upper_tri_indexes]
                            }
                  })
             self.data_clustering.append(
@@ -97,10 +106,13 @@ def main():
     data_pca = pca.transform(data_tr.data_clustering)
     print("Explained variance ratios:", pca.explained_variance_ratio_,
           "->", sum(pca.explained_variance_ratio_))
-
-
-    # Plot heatmap
-    heatmap.plot_heatmap(data_tr)
+    # Execute heatmap
+    distance = Hierarchical(data_clustering=data_tr, data_transformer=data_tr, country_names=data_tr.country_names)
+    print("Euclidean distance:", pd.DataFrame.round(distance.get_euclidean_distance(), 3))
+    print("Manhattan distance:", pd.DataFrame.round(distance.get_manhattan_distance(), 3))
+    distance.plot_distances()
+    distance.plot_dendrogram()
+    #distance.plot_ordered_distance()
 
     # Execute clustering
     clust = Clustering(data=data_pca)
@@ -109,7 +121,7 @@ def main():
 
     # Plot results for analysis
     plotter = Plotter(clustering=clust,
-                      data_transformer=data_tr)
+                      data_transformer=data_tr, country_names=data_tr)
     plotter.plot_clustering()
     centroids_orig = pca.inverse_transform(clust.centroids)
     plotter.plot_heatmap_centroid(centroids=centroids_orig)

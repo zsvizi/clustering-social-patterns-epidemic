@@ -74,7 +74,6 @@ class DataLoader:
 
         self.global_unit_set = {"pop": population_global, "age": age_distribution_global}
         self.age_data = output
-
         if not os.path.isdir('../sens_data/population'):
             os.makedirs('../sens_data/population')
             for key in self.age_data.keys():
@@ -144,7 +143,8 @@ class DataLoader:
         :return: ndarray, has the same size as input matrix
         """
         age_distribution = self.age_data[country]["age"].reshape((-1, 1))
-
         matrix_1 = matrix * age_distribution
         output = (matrix_1 + matrix_1.T) / (2 * age_distribution)
         return output
+
+

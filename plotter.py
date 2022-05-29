@@ -1,13 +1,12 @@
 
 import seaborn as sns
 from matplotlib import pyplot as plt
-
 import numpy as np
 import pandas as pd
 
 
 class Plotter:
-    def __init__(self, clustering, data_transformer):
+    def __init__(self, clustering, data_transformer, country_names):
         self.colors = ['r', 'g', 'b']
         self.clust = clustering
         self.data_tr = data_transformer
@@ -45,20 +44,6 @@ class Plotter:
             plt.show()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def plot_contact_matrix(contact_matrix):
     param_list = range(0, 16, 1)
     corr = pd.DataFrame(contact_matrix, columns=param_list, index=param_list)
@@ -66,6 +51,8 @@ def plot_contact_matrix(contact_matrix):
     ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
     ax.invert_yaxis()
     plt.yticks(rotation=0)
+
+
 
 
 
