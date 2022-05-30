@@ -3,6 +3,7 @@ from fastcluster import linkage
 from matplotlib import pyplot as plt
 import numpy as np
 import scipy.cluster.hierarchy as sch
+from sklearn.metrics.pairwise import manhattan_distances
 from scipy.spatial.distance import squareform
 import seaborn as sns
 import pandas as pd
@@ -136,14 +137,15 @@ class Hierarchical:
 
     def plot_ordered_distance(self):
         country_names = self.data_tr.country_names
-        manhattan_distance = self.get_manhattan_distance()
+        manhattan_distancess = manhattan_distances(self.data_tr.data_clustering)
+        #manhattan_distance = self.get_manhattan_distance()
         methods = ["single", "complete", "average", "ward"]
         for method in methods:
             print("Method:\t", method)
-            ordered_dist_mat, res_order, res_linkage = self.compute_serial_matrix(manhattan_distance, method)
-            plt.figure(figsize=(25, 15))
+            ordered_dist_mat, res_order, res_linkage = self.compute_serial_matrix(manhattan_distancess, method)
+            plt.figure(figsize=(18, 15))
             plt.title("Distances between countries based on social contacts: method: {}".format(method))
-            az = plt.imshow(ordered_dist_mat, cmap='nipy_spectral',
+            az = plt.imshow(ordered_dist_mat, cmap='rainbow',
                             alpha=.9, interpolation="nearest", vmin=0, vmax=2.2)
             plt.xticks(ticks=res_order, labels=country_names, rotation=90)
             plt.yticks(ticks=res_order, labels=country_names, rotation=0)
@@ -152,8 +154,7 @@ class Hierarchical:
 
             #  Dendrogram
 
-            plt.figure(figsize=(30, 8))
-            country_names = self.data_tr.country_names
+            plt.figure(figsize=(25, 10))
             sch.dendrogram(sch.linkage(ordered_dist_mat),
                            color_threshold=0.8,
                            leaf_rotation=90,
@@ -166,12 +167,7 @@ class Hierarchical:
 
             plt.title('Hierarchical Clustering Dendrogram: {}'.format(method))
             plt.ylabel('Social contact Distance between countries')
-            plt.xticks(ticks=res_order, labels=country_names, rotation=90)
             plt.axhline(y=1.0, c='red', lw=1, linestyle="dashed")
-            az = plt.imshow(pd.DataFrame(ordered_dist_mat), cmap='nipy_spectral',
-                            alpha=.9, interpolation="nearest", vmin=0, vmax=2.2)
-            plt.colorbar(az,
-                         ticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2])
 
     def plot_correlation(self):
         country_distance = self.get_manhattan_distance()
