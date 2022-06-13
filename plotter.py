@@ -30,7 +30,6 @@ class Plotter:
             new_contact_mtx[self.data_tr.upper_tri_indexes] = centroid
             new_2 = new_contact_mtx.T
             new_2[self.data_tr.upper_tri_indexes] = centroid
-
             plot_contact_matrix(contact_matrix=new_2)
             plt.title("Centroid " + str(idx))
             plt.show()
@@ -51,6 +50,8 @@ def plot_contact_matrix(contact_matrix):
     ax = sns.heatmap(corr, cmap=cmap, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .8})
     ax.invert_yaxis()
     plt.yticks(rotation=0)
+
+
 
 
 

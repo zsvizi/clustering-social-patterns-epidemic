@@ -1,7 +1,9 @@
-
+import model
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import numpy as np
+
+import simulation
 from heatmap import Hierarchical
 from dataloader import DataLoader
 from plotter import Plotter
