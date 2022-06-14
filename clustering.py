@@ -113,7 +113,7 @@ def main():
     print("Euclidean distance:", pd.DataFrame.round(distance.get_euclidean_distance(), 3))
     print("Manhattan distance:", pd.DataFrame.round(distance.get_manhattan_distance(), 3))
     distance.plot_distances()
-    distance.plot_dendrogram()
+    #distance.plot_dendrogram()
     distance.plot_ordered_distance()
 
     # Execute clustering
@@ -132,8 +132,8 @@ def main():
     # List cluster members
     for cluster in range(clust.n_cl):
         print("Cluster", cluster, "(" + plotter.colors[cluster] + ")", ":",
-              {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]
-               for idx, x in enumerate(clust.k_means_pred) if x == cluster})
+        {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]
+            for idx, x in enumerate(clust.k_means_pred) if x == cluster})
 
 
 if __name__ == "__main__":

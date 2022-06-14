@@ -1,9 +1,10 @@
+
+from scipy.cluster.hierarchy import fcluster
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 from sklearn.metrics.pairwise import manhattan_distances
-from scipy.spatial.distance import squareform
 import seaborn as sns
 
 
@@ -59,13 +60,13 @@ class Hierarchical:
 
     def seriation(self, z, n, cur_index):
         """
-              It computes the order implied by a hierarchical tree (dendrogram)
-              :{"param_1 z": a hierarchical tree (dendrogram)
-              "param_2 n": the number of points given to the clustering process
-              "param_3 cur_index": the position in the tree for the recursive traversal
-              }
-              :return: order implied by the hierarchical tree z
-              """
+               It computes the order implied by a hierarchical tree (dendrogram)
+               :{"param_1 z": a hierarchical tree (dendrogram)
+               "param_2 n": the number of points given to the clustering process
+               "param_3 cur_index": the position in the tree for the recursive traversal
+               }
+               :return: order implied by the hierarchical tree z
+               """
         if cur_index < n:
             return [cur_index]
         else:
@@ -74,7 +75,7 @@ class Hierarchical:
             return (self.seriation(z, n, left) +
                     self.seriation(z, n, right))
 
-    def compute_serial_matrix(self, manhattan_distance, method="ward"):
+    def compute_serial_matrix(self, manhattan_distance):  # method="complete"
         """
                 It transforms a distance matrix into a sorted distance matrix according to the order implied by the
                 hierarchical tree (dendrogram)
@@ -88,20 +89,21 @@ class Hierarchical:
                 "return_3": res_linkage: is the hierarchical tree (dendrogram)
                 }
                 """
+        self.get_manhattan_distance()
+        data = pd.DataFrame(self.data_tr.data_clustering)
+        data.index = self.country_names
         n = len(manhattan_distance)   # 39 countries
-        flat_dist_matrix = squareform(manhattan_distance)  # Convert a vector-form distance vector to a square-form
-        res_linkage = sch.linkage(flat_dist_matrix, method=method)  # Perform hierarchical/agglomerative clustering.
+        res_linkage = sch.linkage(manhattan_distance, method="complete")
 
-        # flip the various branches of the dendrogram around to minimize the sum of
-        # dissimilarities between adjacent leaves (Optimal Leaf Ordering)
-        res_order = self.seriation(res_linkage, n, n + n - 2)
+        order = fcluster(res_linkage, manhattan_distance.max(), criterion='distance')
+
         seriated_dist = np.zeros((n, n))  # Return a new array of given shape and type, filled with zeros.
         a, b = np.triu_indices(n, k=1)  # Return the indices for the upper-triangle of an (n, m) array
 
         # reorder the elements using permute so that the sum of sequential pairwise distance is minimal
-        seriated_dist[a, b] = manhattan_distance[[res_order[i] for i in a], [res_order[j] for j in b]]
+        seriated_dist[a, b] = manhattan_distance[[order[i] for i in a], [order[j] for j in b]]
         seriated_dist[b, a] = seriated_dist[a, b]  # symmetric matrix
-        return seriated_dist, res_order, res_linkage  # seriated_dist is 39*39, res_order is 39, res_linage provides
+        return seriated_dist, order, res_linkage  # seriated_dist is 39*39, res_order is 39, res_linage provides
     # clusters merged, distance, and frequency, that is 39*4
 
     def plot_distances(self):
@@ -127,8 +129,7 @@ class Hierarchical:
         manhattan_distance = self.get_manhattan_distance()
         country_names = self.data_tr.country_names
         plt.figure(figsize=(33, 31))
-        sch.dendrogram(sch.linkage(manhattan_distance.to_numpy()),
-                       color_threshold=0.7,
+        sch.dendrogram(sch.linkage(manhattan_distance.to_numpy(), method="complete"),
                        get_leaves=True,
                        leaf_rotation=0,
                        leaf_font_size=32,
@@ -137,46 +138,81 @@ class Hierarchical:
                        above_threshold_color='blue',
                        orientation="right",
                        distance_sort=True)
-        plt.axvline(x=0.7, c='black', lw=1, linestyle="dashed")
         plt.title('Hierarchical Clustering Dendrogram before reordering', fontsize=44, fontweight="bold")
         plt.xlabel('Distance between Clusters', fontsize=42)
 
     def plot_ordered_distance(self):
-        country_names = self.data_tr.country_names
-        manhattan_distance = manhattan_distances(self.data_tr.data_clustering)
-        methods = ["single", "complete", "ward", "average"]
-        for method in methods:
-            print("Method:\t", method)
-            ordered_dist_mat, res_order, res_linkage = self.compute_serial_matrix(manhattan_distance, method)
-            plt.figure(figsize=(35, 28))
-            plt.title("Measure of closeness between countries: {}".format(method),
-                      fontsize=43,
-                      fontweight="bold")
-            az = plt.imshow(ordered_dist_mat, cmap='nipy_spectral',
-                            alpha=.9, interpolation="nearest", vmin=0, vmax=2.2)
-            plt.xticks(ticks=res_order, labels=country_names, rotation=90, fontsize=24)
-            plt.yticks(ticks=res_order, labels=country_names, rotation=0, fontsize=24)
-            plt.colorbar(az,
-                         ticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2])
+        manhattan_distance = manhattan_distances(self.data_tr.data_clustering)  # get pairwise manhattan distance
 
-            #  Dendrogram
+        # convert the data into dataframe
+        # replace the indexes of the distance with the country names
+        # rename the columns and rows of the distance with country names and return a matrix distance
+        dt = pd.DataFrame(manhattan_distance, index=self.country_names, columns=self.country_names)
 
-            plt.figure(figsize=(34, 30))
-            sch.dendrogram(res_linkage,
-                           color_threshold=1.0,  # sets the color of the links above the color_threshold
-                           leaf_rotation=0,
-                           leaf_font_size=32,  # the size based on the number of nodes in the dendrogram.
-                           show_leaf_counts=True,
-                           labels=country_names,
-                           above_threshold_color='blue',
-                           orientation="right",
-                           get_leaves=True,
-                           distance_sort=True)  # The child with the minimum distance between
-            # its direct descendents is plotted first.
+        # Return a copy of the manhattan distance collapsed into one dimension.
+        distances = manhattan_distance[np.triu_indices(np.shape(manhattan_distance)[0], k=1)].flatten()
 
-            plt.title('Cluster Analysis: {}'.format(method), fontsize=44, fontweight="bold")
-            plt.xlabel('Distance between Clusters', fontsize=42)
-            plt.axvline(x=1.0, c='red', lw=1, linestyle="dashed")
+        #  Perform hierarchical clustering using complete method.
+        res = sch.linkage(distances, method="complete")
+
+        #  flattens the dendrogram, obtaining as a result an assignation of the original data points to single clusters.
+        order = fcluster(res, 0.2 * manhattan_distance.max(), criterion='distance')
+
+        # Perform an indirect sort along the along first axis
+        columns = [dt.columns.tolist()[i] for i in list((np.argsort(order)))]
+
+        # Place columns(sorted countries) in the both axes
+        dt = dt.reindex(columns, axis='index')
+        dt = dt.reindex(columns, axis='columns')
+
+        plt.figure(figsize=(35, 28))
+
+        plt.title("Measure of closeness between countries",
+                  fontsize=43,
+                  fontweight="bold")
+        az = plt.imshow(dt, cmap='nipy_spectral',
+                        alpha=.9, interpolation="nearest", vmin=0, vmax=2.2)
+        plt.xticks(ticks=np.arange(len(columns)),
+                   labels=columns,
+                   rotation=90, fontsize=24)
+        plt.yticks(ticks=np.arange(len(columns)),
+                   labels=columns,
+                   rotation=0, fontsize=24)
+        plt.colorbar(az,
+                     ticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2])
+
+        #  Original uncolored Dendrogram
+        plt.figure(figsize=(45, 30))
+        sch.dendrogram(res,
+                       color_threshold='default',
+                       leaf_rotation=90,
+                       leaf_font_size=26,
+                       labels=np.array(columns),
+                       orientation="top",
+                       show_leaf_counts=True,
+                       distance_sort=True)
+        plt.title('Cluster Analysis with no threshold', fontsize=50, fontweight="bold")
+        plt.ylabel('Distance between Clusters', fontsize=45)
+
+        #  Colored Dendrogram based on threshold (7 clusters)
+        # the longest  vertical distance without any horizontal line  passing   through  it is selected and a
+        #  horizontal   line is drawn   through it.
+
+        plt.figure(figsize=(40, 30), dpi=80)
+        sch.dendrogram(res,
+                       color_threshold=1.25,  # sets the color of the links above the color_threshold
+                       leaf_rotation=90,
+                       leaf_font_size=26,  # the size based on the number of nodes in the dendrogram.
+                       show_leaf_counts=True,
+                       labels=np.array(columns),
+                       above_threshold_color='grey',
+                       orientation="top",
+                       get_leaves=True,
+                       distance_sort=True)
+        plt.title('Cluster Analysis with a threshold', fontsize=44, fontweight="bold")
+        plt.ylabel('Distance between Clusters', fontsize=42)
+        line = 1.25
+        plt.axhline(y=line, c='green', lw=2, linestyle='--')
 
     def plot_correlation(self):
         country_distance = self.get_manhattan_distance()
