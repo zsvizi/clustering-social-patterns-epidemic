@@ -1,5 +1,5 @@
 
-from scipy.cluster.hierarchy import fcluster
+from scipy.cluster.hierarchy import fcluster, leaves_list
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -153,10 +153,11 @@ class Hierarchical:
         distances = manhattan_distance[np.triu_indices(np.shape(manhattan_distance)[0], k=1)].flatten()
 
         #  Perform hierarchical clustering using complete method.
-        res = sch.linkage(distances, method="complete")
+        res = sch.linkage(manhattan_distance, method="complete")
+        #  res = sch.linkage(distances, method="complete")
 
         #  flattens the dendrogram, obtaining as a result an assignation of the original data points to single clusters.
-        order = fcluster(res, 0.2 * manhattan_distance.max(), criterion='distance')
+        order = fcluster(res, 0.5 * manhattan_distance.max(), criterion='distance')
 
         # Perform an indirect sort along the along first axis
         columns = [dt.columns.tolist()[i] for i in list((np.argsort(order)))]
@@ -164,6 +165,13 @@ class Hierarchical:
         # Place columns(sorted countries) in the both axes
         dt = dt.reindex(columns, axis='index')
         dt = dt.reindex(columns, axis='columns')
+
+        #  Determine the number of clusters based on the threshold, t using fcluster.
+        Z = sch.linkage(manhattan_distance, method="complete")
+
+        # from t = 4, 5, 6, we have 2 clusters returned
+        # when t = 2, we have 10 clusters. t = 2.5, we have 8 clusters.
+        clusters = fcluster(Z, t=3, criterion='distance')    # when t = 3, we have 5 clusters returned.
 
         plt.figure(figsize=(35, 28))
 
@@ -182,37 +190,41 @@ class Hierarchical:
                      ticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2])
 
         #  Original uncolored Dendrogram
-        plt.figure(figsize=(45, 30))
-        sch.dendrogram(res,
-                       color_threshold='default',
+
+        fig, axes = plt.subplots(1, 1, figsize=(35, 25), dpi=150)
+        sch.dendrogram(Z,
                        leaf_rotation=90,
-                       leaf_font_size=26,
+                       leaf_font_size=25,
                        labels=np.array(columns),
                        orientation="top",
                        show_leaf_counts=True,
                        distance_sort=True)
-        plt.title('Cluster Analysis with no threshold', fontsize=50, fontweight="bold")
+        axes.tick_params(axis='both', which='major', labelsize=26)
+        plt.title('Cluster Analysis without threshold', fontsize=50, fontweight="bold")
         plt.ylabel('Distance between Clusters', fontsize=45)
+        plt.tight_layout()
 
-        #  Colored Dendrogram based on threshold (7 clusters)
+        #  Colored Dendrogram based on threshold (5 clusters)
         # the longest  vertical distance without any horizontal line  passing   through  it is selected and a
         #  horizontal   line is drawn   through it.
 
-        plt.figure(figsize=(40, 30), dpi=80)
-        sch.dendrogram(res,
-                       color_threshold=1.25,  # sets the color of the links above the color_threshold
+        fig, axes = plt.subplots(1, 1, figsize=(36, 28), dpi=200)
+        sch.dendrogram(Z,
+                       color_threshold=3,  # sets the color of the links above the color_threshold
                        leaf_rotation=90,
-                       leaf_font_size=26,  # the size based on the number of nodes in the dendrogram.
+                       leaf_font_size=20,  # the size based on the number of nodes in the dendrogram.
                        show_leaf_counts=True,
                        labels=np.array(columns),
-                       above_threshold_color='grey',
+                       above_threshold_color='black',
+                       ax=axes,
                        orientation="top",
                        get_leaves=True,
                        distance_sort=True)
         plt.title('Cluster Analysis with a threshold', fontsize=44, fontweight="bold")
         plt.ylabel('Distance between Clusters', fontsize=42)
-        line = 1.25
-        plt.axhline(y=line, c='green', lw=2, linestyle='--')
+        line = 3
+        plt.axhline(y=line, c='green', lw=3, linestyle='--')
+        axes.tick_params(axis='both', which='major', labelsize=25)
 
     def plot_correlation(self):
         country_distance = self.get_manhattan_distance()
