@@ -1,11 +1,9 @@
-
-from scipy.cluster.hierarchy import fcluster, leaves_list
+from scipy.cluster.hierarchy import fcluster
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 from sklearn.metrics.pairwise import manhattan_distances
-import seaborn as sns
 
 
 class Hierarchical:
@@ -57,54 +55,6 @@ class Hierarchical:
             index=self.data.index.tolist())  # function return a list of the values
         pd.DataFrame(manhattan_distance, index=country_names, columns=country_names)
         return manhattan_distance
-
-    def seriation(self, z, n, cur_index):
-        """
-               It computes the order implied by a hierarchical tree (dendrogram)
-               :{"param_1 z": a hierarchical tree (dendrogram)
-               "param_2 n": the number of points given to the clustering process
-               "param_3 cur_index": the position in the tree for the recursive traversal
-               }
-               :return: order implied by the hierarchical tree z
-               """
-        if cur_index < n:
-            return [cur_index]
-        else:
-            left = int(z[cur_index - n, 0])
-            right = int(z[cur_index - n, 1])
-            return (self.seriation(z, n, left) +
-                    self.seriation(z, n, right))
-
-    def compute_serial_matrix(self, manhattan_distance):  # method="complete"
-        """
-                It transforms a distance matrix into a sorted distance matrix according to the order implied by the
-                hierarchical tree (dendrogram)
-                 :{"param_1": country_distance: input a distance matrix to get a sorted one by method
-                "param_2": method: method = ["ward","single","average","complete"]
-                 }
-                 :{"return_1": seriated_dist: input country distance, but with re-ordered rows and columns
-                 according to the seriation
-                 i.e. the order implied by the hierarchical tree
-                "return_2": res_order: is the order implied by the hierarchical tree
-                "return_3": res_linkage: is the hierarchical tree (dendrogram)
-                }
-                """
-        self.get_manhattan_distance()
-        data = pd.DataFrame(self.data_tr.data_clustering)
-        data.index = self.country_names
-        n = len(manhattan_distance)   # 39 countries
-        res_linkage = sch.linkage(manhattan_distance, method="complete")
-
-        order = fcluster(res_linkage, manhattan_distance.max(), criterion='distance')
-
-        seriated_dist = np.zeros((n, n))  # Return a new array of given shape and type, filled with zeros.
-        a, b = np.triu_indices(n, k=1)  # Return the indices for the upper-triangle of an (n, m) array
-
-        # reorder the elements using permute so that the sum of sequential pairwise distance is minimal
-        seriated_dist[a, b] = manhattan_distance[[order[i] for i in a], [order[j] for j in b]]
-        seriated_dist[b, a] = seriated_dist[a, b]  # symmetric matrix
-        return seriated_dist, order, res_linkage  # seriated_dist is 39*39, res_order is 39, res_linage provides
-    # clusters merged, distance, and frequency, that is 39*4
 
     def plot_distances(self):
         manhattan_distance = self.get_manhattan_distance()
@@ -225,14 +175,3 @@ class Hierarchical:
         line = 3
         plt.axhline(y=line, c='green', lw=3, linestyle='--')
         axes.tick_params(axis='both', which='major', labelsize=25)
-
-    def plot_correlation(self):
-        country_distance = self.get_manhattan_distance()
-        country_names = self.data_tr.country_names
-        plt.figure(figsize=(16, 12), frameon=False)
-        sns.heatmap(np.corrcoef(country_distance), annot=True, cmap="nipy_spectral", linewidths=0.5)
-        res_order = self.compute_serial_matrix(country_distance, method="complete")
-        plt.xticks(ticks=res_order, labels=country_names, rotation=90)
-        plt.yticks(ticks=res_order, labels=country_names, rotation=0)
-        plt.title('Correlation between countries social contact distance')
-        plt.show()
