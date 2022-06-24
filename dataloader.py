@@ -144,7 +144,7 @@ class DataLoader:
         """
         age_distribution = self.age_data[country]["age"].reshape((-1, 1))
         matrix_1 = matrix * age_distribution
-        output = (matrix_1 + matrix_1.T) / (2 * age_distribution)
+        output = (matrix_1 + matrix_1.T) / (2 * age_distribution)  # we symmetrize the matrix by the formula
         return output
 
 

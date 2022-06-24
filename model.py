@@ -97,10 +97,8 @@ class RostHungaryModel:
     def _get_initial_values(self):
         init_values = [self.s_0, self.l1_0, self.l2_0, self.ip_0, self.ia1_0, self.ia2_0, self.ia3_0, self.is1_0,
                        self.is2_0, self.is3_0, self.ih_0, self.ic_0, self.icr_0, self.r_0, self.d_0, self.c_0]
-        print("ini:", init_values)
         return np.array(init_values).flatten()
 
     def get_r0_value(self):
         r0generator = R0Generator(param=self.parameters)
-        print("x:", r0generator.get_eig_val(self.contact_matrix) * self.parameters["beta"])
         return r0generator.get_eig_val(self.contact_matrix) * self.parameters["beta"]

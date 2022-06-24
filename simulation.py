@@ -12,7 +12,6 @@ def get_contact_matrix_from_upper_triu(rvector, number_of_age_groups, age_vector
     new_2 = new_contact_mtx.T
     new_2[upper_tri_indexes] = rvector
     vector = np.array(new_2 / age_vector)
-    print("vector:", vector)
     return vector
 
 
