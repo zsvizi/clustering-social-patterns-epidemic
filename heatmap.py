@@ -1,9 +1,8 @@
-from scipy.cluster.hierarchy import fcluster
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import scipy.cluster.hierarchy as sch
+import seaborn as sns
 from sklearn.metrics.pairwise import manhattan_distances
 
 
@@ -115,7 +114,7 @@ class Hierarchical:
         res = sch.linkage(distances, method="complete")
 
         #  flattens the dendrogram, obtaining as a result an assignation of the original data points to single clusters.
-        order = fcluster(res, 0.2 * manhattan_distance.max(), criterion='distance')
+        order = sch.fcluster(res, 0.2 * manhattan_distance.max(), criterion='distance')
 
         # Perform an indirect sort along the along first axis
         columns = [dt.columns.tolist()[i] for i in list((np.argsort(order)))]
@@ -176,5 +175,3 @@ class Hierarchical:
         line = 1.5
         plt.axhline(y=line, c='green', lw=3, linestyle='--')
         axes.tick_params(axis='both', which='major', labelsize=25)
-
-

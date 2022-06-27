@@ -1,9 +1,7 @@
-import model
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import numpy as np
 
-import simulation
 from heatmap import Hierarchical
 from dataloader import DataLoader
 from plotter import Plotter
@@ -99,41 +97,46 @@ class Clustering:
 
 
 def main():
+    do_clustering_pca = False
+    do_clustering_hierarchical = True
+
     # Create data for clustering
     data_tr = DataTransformer()
 
-    # Reduce dimensionality
-    pca = PCA(n_components=12)
-    pca.fit(data_tr.data_clustering)
-    data_pca = pca.transform(data_tr.data_clustering)
-    print("Explained variance ratios:", pca.explained_variance_ratio_,
-          "->", sum(pca.explained_variance_ratio_))
     # Execute heatmap
-    distance = Hierarchical(data_clustering=data_tr, data_transformer=data_tr, country_names=data_tr.country_names)
-    print("Euclidean distance:", pd.DataFrame.round(distance.get_euclidean_distance(), 3))
-    print("Manhattan distance:", pd.DataFrame.round(distance.get_manhattan_distance(), 3))
-    distance.plot_distances()
-    # distance.heatmap_ten_countries()
-    distance.plot_ordered_distance()
+    if do_clustering_hierarchical:
+        hierarchical = Hierarchical(data_clustering=data_tr, data_transformer=data_tr, country_names=data_tr.country_names)
+        print("Euclidean distance:", pd.DataFrame.round(hierarchical.get_euclidean_distance(), 3))
+        print("Manhattan distance:", pd.DataFrame.round(hierarchical.get_manhattan_distance(), 3))
+        hierarchical.plot_distances()
+        # distance.heatmap_ten_countries()
+        hierarchical.plot_ordered_distance()
 
-    # Execute clustering
-    clust = Clustering(data=data_pca)
-    clust.run_clustering()
-    clust.get_closest_points()
+    if do_clustering_pca:
+        # Reduce dimensionality
+        pca = PCA(n_components=12)
+        pca.fit(data_tr.data_clustering)
+        data_pca = pca.transform(data_tr.data_clustering)
+        print("Explained variance ratios:", pca.explained_variance_ratio_,
+              "->", sum(pca.explained_variance_ratio_))
+        # Execute clustering
+        clust = Clustering(data=data_pca)
+        clust.run_clustering()
+        clust.get_closest_points()
 
-    # Plot results for analysis
-    plotter = Plotter(clustering=clust,
-                      data_transformer=data_tr, country_names=data_tr)
-    plotter.plot_clustering()
-    centroids_orig = pca.inverse_transform(clust.centroids)
-    plotter.plot_heatmap_centroid(centroids=centroids_orig)
-    plotter.plot_heatmap_closest()
+        # Plot results for analysis
+        plotter = Plotter(clustering=clust,
+                          data_transformer=data_tr, country_names=data_tr)
+        plotter.plot_clustering()
+        centroids_orig = pca.inverse_transform(clust.centroids)
+        plotter.plot_heatmap_centroid(centroids=centroids_orig)
+        plotter.plot_heatmap_closest()
 
-    # List cluster members
-    for cluster in range(clust.n_cl):
-        print("Cluster", cluster, "(" + plotter.colors[cluster] + ")", ":",
-        {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]
-            for idx, x in enumerate(clust.k_means_pred) if x == cluster})
+        # List cluster members
+        for cluster in range(clust.n_cl):
+            print("Cluster", cluster, "(" + plotter.colors[cluster] + ")", ":",
+                  {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]
+                   for idx, x in enumerate(clust.k_means_pred) if x == cluster})
 
 
 if __name__ == "__main__":
