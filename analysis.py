@@ -5,7 +5,7 @@ from hierarchical import Hierarchical
 
 
 class Analysis:
-    def __init__(self, data_tr, img_prefix, threshold, distance: str = "manhattan"):
+    def __init__(self, data_tr, img_prefix, threshold, distance: str = "euclidean"):
         self.data_tr = data_tr
         self.img_prefix = img_prefix
         self.threshold = threshold
@@ -38,12 +38,12 @@ def main():
     data_tr = DataTransformer()
 
     # do analysis for original data
-    Analysis(data_tr=data_tr, img_prefix="original", threshold=1.5).run()
+    Analysis(data_tr=data_tr, img_prefix="original", threshold=0.22).run()
     if do_clustering_pca:
         n_components = 5
         Analysis.apply_pca(data_tr=data_tr, n_components=n_components)
         # do analysis for reduced data
-        Analysis(data_tr=data_tr, img_prefix="pca_" + str(n_components), threshold=0.45).run()
+        Analysis(data_tr=data_tr, img_prefix="pca_" + str(n_components), threshold=0.23).run()
 
 
 if __name__ == "__main__":
