@@ -1,7 +1,7 @@
 from sklearn.decomposition import PCA
 
-from data_transformer import DataTransformer
-from hierarchical import Hierarchical
+from src.data_transformer import DataTransformer
+from src.hierarchical import Hierarchical
 
 
 class Analysis:

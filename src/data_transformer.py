@@ -1,7 +1,7 @@
 import numpy as np
 
-from dataloader import DataLoader
-from simulation import Simulation
+from src.dataloader import DataLoader
+from src.simulation import Simulation
 
 
 class DataTransformer:

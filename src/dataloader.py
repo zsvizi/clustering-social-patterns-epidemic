@@ -22,7 +22,7 @@ class DataLoader:
         self._age_data_file = "./data/age_data" + scale + ".xlsx"
         self.contact_types = np.array(["home", "school", "work", "other"])
         self._contact_data_file = ["./data/contact_" + c_type + ".xls" for c_type in self.contact_types]
-        self._model_parameters_data_file = "./data/model_parameters.json"
+        self._model_parameters_data_file = "../data/model_parameters.json"
         # Get values for data members
         self._get_data()
 
@@ -74,8 +74,8 @@ class DataLoader:
 
         self.global_unit_set = {"pop": population_global, "age": age_distribution_global}
         self.age_data = output
-        if not os.path.isdir('../sens_data/population'):
-            os.makedirs('../sens_data/population')
+        if not os.path.isdir('../../sens_data/population'):
+            os.makedirs('../../sens_data/population')
             for key in self.age_data.keys():
                 to_save = {"N": {
                     "value": [int(x) for x in self.age_data[key]['age']],

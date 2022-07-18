@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 
 class Hierarchical:
     def __init__(self, data_transformer, country_names, img_prefix,
-                 dist: str = "manhattan"):
+                 dist: str = "euclidean"):
         self.data_tr = data_transformer
         self.country_names = country_names
         self.img_prefix = img_prefix
@@ -19,7 +19,7 @@ class Hierarchical:
         elif dist == "manhattan":
             self.get_distance_matrix = self.get_manhattan_distance
 
-        os.makedirs("./plots", exist_ok=True)
+        os.makedirs("../plots", exist_ok=True)
 
     def plot_ordered_distance(self, threshold: float):
         # calculate ordered distance matrix
@@ -34,7 +34,7 @@ class Hierarchical:
         #  Colored Dendrogram based on threshold (4 clusters)
         # cutting the dendrogram where the gap between two successive merges is at thw largest.
         #  horizontal   line is drawn   through it.
-        self.plot_dendrogram_with_threshold(res, threshold)
+        self.plot_dendrogram_with_threshold(res=res, threshold=threshold)
 
     def plot_distances(self):
         distance, _ = self.get_distance_matrix()
@@ -54,7 +54,7 @@ class Hierarchical:
         plt.colorbar(az)
         plt.savefig("./plots/" + self.img_prefix + "_" + "distances.png")
 
-    def calculate_ordered_distance_matrix(self, threshold):
+    def calculate_ordered_distance_matrix(self, threshold, verbose: bool = True):
         dt, distance = self.get_distance_matrix()
         # Return a copy of the distance collapsed into one dimension.
         distances = distance[np.triu_indices(np.shape(distance)[0], k=1)].flatten()
@@ -62,6 +62,9 @@ class Hierarchical:
         res = sch.linkage(distances, method="complete")
         #  flattens the dendrogram, obtaining as a result an assignation of the original data points to single clusters.
         order = sch.fcluster(res, threshold, criterion='distance')
+        if verbose:
+            for x in np.unique(order):
+                print("cluster " + str(x) + ":", dt.columns[order == x])
         # Perform an indirect sort along the along first axis
         columns = [dt.columns.tolist()[i] for i in list((np.argsort(order)))]
         # Place columns(sorted countries) in the both axes
@@ -103,7 +106,7 @@ class Hierarchical:
     def plot_dendrogram_with_threshold(self, res, threshold):
         fig, axes = plt.subplots(1, 1, figsize=(36, 28), dpi=200)
         sch.dendrogram(res,
-                       color_threshold=1.5,  # sets the color of the links above the color_threshold
+                       color_threshold=threshold,  # sets the color of the links above the color_threshold
                        leaf_rotation=90,
                        leaf_font_size=20,  # the size based on the number of nodes in the dendrogram.
                        show_leaf_counts=True,
