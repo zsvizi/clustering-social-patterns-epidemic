@@ -5,7 +5,7 @@ from r0 import R0Generator
 
 
 class RostHungaryModel:
-    def __init__(self, init_values, contact_matrix, parameters, to_solve=False):
+    def __init__(self, init_values, contact_matrix, parameters, to_solve=True):
         self.s_0 = init_values["s"]
         self.l1_0 = init_values["l1"]
         self.l2_0 = init_values["l2"]

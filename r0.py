@@ -51,7 +51,7 @@ class R0Generator:
         # I3 -> Ih/Ic (& R)
         v[idx("i3"), idx("i3")] = self.n_i * self.parameters["gamma_s"]
 
-        self.v_inv = np.linalg.inv(v)
+        self.v_inv = np.linalg.inv(v)      # v: (144, 144)
 
     def __get_f(self, contact_mtx: np.array) -> np.array:
         i = self.i
@@ -63,7 +63,7 @@ class R0Generator:
         inf_s = self.parameters["inf_s"] if "inf_s" in self.parameters.keys() else 1.0
         inf_p = self.parameters["inf_p"] if "inf_p" in self.parameters.keys() else 1.0
 
-        susc_vec = self.parameters["susc"].reshape((-1, 1))
+        susc_vec = self.parameters["susc"].reshape((-1, 1))     # sus: (16, 1)
         f[i["l1"]:s_mtx:n_states, i["ip"]:s_mtx:n_states] = inf_p * contact_mtx.T * susc_vec
         f[i["l1"]:s_mtx:n_states, i["a1"]:s_mtx:n_states] = inf_a * contact_mtx.T * susc_vec
         f[i["l1"]:s_mtx:n_states, i["a2"]:s_mtx:n_states] = inf_a * contact_mtx.T * susc_vec
@@ -71,8 +71,7 @@ class R0Generator:
         f[i["l1"]:s_mtx:n_states, i["i1"]:s_mtx:n_states] = inf_s * contact_mtx.T * susc_vec
         f[i["l1"]:s_mtx:n_states, i["i2"]:s_mtx:n_states] = inf_s * contact_mtx.T * susc_vec
         f[i["l1"]:s_mtx:n_states, i["i3"]:s_mtx:n_states] = inf_s * contact_mtx.T * susc_vec
-
-        return f
+        return f           # f: (144, 144)
 
     def __idx(self, state: str) -> int:
         return np.arange(self.n_age * self.n_states) % self.n_states == self.i[state]

@@ -1,8 +1,8 @@
 import numpy as np
 from tqdm import tqdm
-
 from model import RostHungaryModel
 from r0 import R0Generator
+from matplotlib import pyplot as plt
 
 
 def get_contact_matrix_from_upper_triu(rvector, number_of_age_groups, age_vector):
@@ -52,7 +52,7 @@ class Simulation:
         self.t = np.linspace(0, 600, 600)
         self.output = []
 
-        self.run_plotting = False
+        self.run_plotting = True
 
     def sim_run(self, lhs_table):
         results = list(tqdm(map(self.solve_model, lhs_table), total=lhs_table.shape[0]))
