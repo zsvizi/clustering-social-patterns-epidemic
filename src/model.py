@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import odeint
 
-from r0 import R0Generator
+from src.r0 import R0Generator
 
 
 class RostHungaryModel:
