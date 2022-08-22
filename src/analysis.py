@@ -1,12 +1,15 @@
 from sklearn.decomposition import PCA
-
-from src.data_transformer import DataTransformer
-from src.hierarchical import Hierarchical
+from data_transformer import DataTransformer
+from hierarchical import Hierarchical
+from data_transformer import DataTransformer
+from hierarchical import Hierarchical
+from dpca import DPCA
 
 
 class Analysis:
-    def __init__(self, data_tr, img_prefix, threshold, distance: str = "euclidean"):
+    def __init__(self, data_tr, data_dpca, img_prefix, threshold, distance: str = "euclidean"):
         self.data_tr = data_tr
+        self.data_dpca = data_dpca
         self.img_prefix = img_prefix
         self.threshold = threshold
         self.distance = distance
@@ -21,30 +24,38 @@ class Analysis:
         hierarchical.plot_ordered_distance(threshold=self.threshold)
 
     @staticmethod
-    def apply_pca(data_tr, n_components):
+    def apply_pca(data_dpca, n_components):
         pca = PCA(n_components=n_components)
-        pca.fit(data_tr.data_clustering)
-        data_pca = pca.transform(data_tr.data_clustering)
+        pca.fit(data_dpca.reduced_contact_matrix)
+        data_pca = pca.transform(data_dpca.reduced_contact_matrix)
         print("Explained variance ratios:",
               pca.explained_variance_ratio_,
               "->", sum(pca.explained_variance_ratio_))
-        data_tr.data_clustering = data_pca
+        data_dpca.reduced_contact_matrix = data_pca
 
 
 def main():
+
     do_clustering_pca = True
 
     # Create data for clustering
     data_tr = DataTransformer()
+    data_dpca = DPCA(country_names=data_tr.country_names, data_tr=data_tr,
+                     data_contact_matrix=data_tr.data_contact_matrix)
+
+    # execute class 2D2PCA
+    print(data_dpca.reduced_contact_matrix)
+    print(data_dpca.matrix_reduced)
 
     # do analysis for original data
-    Analysis(data_tr=data_tr, img_prefix="original", threshold=0.22).run()
+    Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="original", threshold=0.22).run()
     if do_clustering_pca:
-        n_components = 5
-        Analysis.apply_pca(data_tr=data_tr, n_components=n_components)
+        n_components = 3
+        Analysis.apply_pca(data_dpca=data_dpca, n_components=n_components)
         # do analysis for reduced data
-        Analysis(data_tr=data_tr, img_prefix="pca_" + str(n_components), threshold=0.23).run()
+        Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="pca_" + str(n_components), threshold=0.23).run()
 
 
 if __name__ == "__main__":
     main()
+
