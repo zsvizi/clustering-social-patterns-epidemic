@@ -36,21 +36,21 @@ class Analysis:
 
 def main():
 
-    do_clustering_pca = True
+    do_clustering_pca = False
 
     # Create data for clustering
     data_tr = DataTransformer()
     data_dpca = DPCA(country_names=data_tr.country_names, data_tr=data_tr,
-                     data_contact_matrix=data_tr.data_contact_matrix)
+                     data_contact_matrix=data_tr.data_contact_matrix,
+                     data_contact_hmatrix=data_tr.data_contact_hmatrix, flatten_matrix=data_tr.flatten_matrix)
 
     # execute class 2D2PCA
-    print(data_dpca.reduced_contact_matrix)
     print(data_dpca.matrix_reduced)
 
     # do analysis for original data
     Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="original", threshold=0.22).run()
     if do_clustering_pca:
-        n_components = 3
+        n_components = 2
         Analysis.apply_pca(data_dpca=data_dpca, n_components=n_components)
         # do analysis for reduced data
         Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="pca_" + str(n_components), threshold=0.23).run()

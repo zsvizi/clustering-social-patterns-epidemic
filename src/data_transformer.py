@@ -23,7 +23,9 @@ class DataTransformer:
         self.data_all_dict = dict()
         self.data_mtx_dict = dict()
 
-        self.data_contact_matrix = dict()
+        self.data_contact_matrix = []  # 624*16
+        self.data_contact_hmatrix = []  # 16*624
+        self.flatten_matrix = []
 
         self.data_clustering = []
 
@@ -68,14 +70,22 @@ class DataTransformer:
                            "other": simulation.beta * contact_other[self.upper_tri_indexes]
                            }
                  })
-            self.data_contact_matrix.update(
-                {country: simulation.beta * contact_matrix
-                 }
+
+            self.data_contact_matrix.append(
+                simulation.beta * contact_matrix)
+            self.data_contact_hmatrix.append(
+                simulation.beta * contact_matrix)
+            self.flatten_matrix.append(
+                (simulation.beta * contact_matrix).flatten()
             )
 
             self.data_clustering.append(
                 simulation.beta * contact_matrix[self.upper_tri_indexes])
         self.data_clustering = np.array(self.data_clustering)
+        self.data_contact_matrix = np.array(self.data_contact_matrix)
+        self.data_contact_matrix = np.vstack(self.data_contact_matrix)
+        self.data_contact_hmatrix = np.hstack(self.data_contact_hmatrix)
+        self.flatten_matrix = np.array(self.flatten_matrix)
 
 
 class Clustering:
@@ -109,8 +119,8 @@ class Clustering:
 
 def main():
 
-    do_clustering_pca = True
-    do_clustering_hierarchical = True
+    do_clustering_pca = False
+    do_clustering_hierarchical = False
 
     # Create data for clustering
     data_tr = DataTransformer()
