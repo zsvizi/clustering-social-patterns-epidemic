@@ -26,6 +26,7 @@ class DataTransformer:
         self.data_contact_matrix = []  # 624*16
         self.data_contact_hmatrix = []  # 16*624
         self.flatten_matrix = []
+        self.data_matrix = dict()
 
         self.data_clustering = []
 
@@ -71,6 +72,10 @@ class DataTransformer:
                            }
                  })
 
+            self.data_matrix.update(
+                {country: simulation.beta * contact_matrix
+                 }
+            )
             self.data_contact_matrix.append(
                 simulation.beta * contact_matrix)
             self.data_contact_hmatrix.append(
@@ -137,7 +142,7 @@ def main():
 
     if do_clustering_pca:
         # Reduce dimensionality
-        pca = PCA(n_components=3)
+        pca = PCA(n_components=2)
         pca.fit(data_tr.data_clustering)
         data_pca = pca.transform(data_tr.data_clustering)
         print("Explained variance ratios:", pca.explained_variance_ratio_,
