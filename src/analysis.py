@@ -4,14 +4,12 @@ from hierarchical import Hierarchical
 from data_transformer import DataTransformer
 from hierarchical import Hierarchical
 from dpca import DPCA
-from dpca import Dimension
 
 
 class Analysis:
-    def __init__(self, data_tr, data_dpca, data_dpca2, img_prefix, threshold, distance: str = "euclidean"):
+    def __init__(self, data_tr, data_dpca, img_prefix, threshold, distance: str = "euclidean"):
         self.data_tr = data_tr
         self.data_dpca = data_dpca
-        self.data_dpca2 = data_dpca2
         self.img_prefix = img_prefix
         self.threshold = threshold
         self.distance = distance
@@ -26,14 +24,14 @@ class Analysis:
         hierarchical.plot_ordered_distance(threshold=self.threshold)
 
     @staticmethod
-    def apply_pca(data_dpca2, n_components):
+    def apply_pca(data_dpca, n_components):
         pca = PCA(n_components=n_components)
-        pca.fit(data_dpca2.reduced_matrix)
-        data_pca = pca.transform(data_dpca2.reduced_matrix)
+        pca.fit(data_dpca.pca_reduced)
+        data_pca = pca.transform(data_dpca.pca_reduced)
         print("Explained variance ratios:",
               pca.explained_variance_ratio_,
               "->", sum(pca.explained_variance_ratio_))
-        data_dpca2.reduced_matrix = data_pca
+        data_dpca.pca_reduced = data_pca
 
 
 def main():
@@ -43,25 +41,20 @@ def main():
     # Create data for clustering
     data_tr = DataTransformer()
     data_dpca = DPCA(country_names=data_tr.country_names, data_tr=data_tr,
-                     data_contact_matrix=data_tr.data_contact_matrix,
-                     data_contact_hmatrix=data_tr.data_contact_hmatrix, flatten_matrix=data_tr.flatten_matrix)
-    data_dpca2 = Dimension(data_tr=data_tr, country_names=data_tr.country_names,
-                           data_matrix=data_tr.data_matrix)
+                     data_contact_matrix=data_tr.data_contact_matrix)
+    data_dpca.reduce_dimension_svd()
+    data_dpca.covariance_dimension_reduction()
 
     # execute class 2D2PCA
-    # print(data_dpca.pca_reduced)
-
-    # execute class Dimension
-    # print(data_dpca2.matrix_reduced)  # 2*2 matrix for each country with the countries
-    # print(data_dpca2.reduced_matrix)  # 39*4 matrix
+    print(data_dpca.pca_reduced)
 
     # do analysis for original data
-    Analysis(data_tr=data_tr, data_dpca=data_dpca, data_dpca2=data_dpca2, img_prefix="original", threshold=0.22).run()
+    Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="original", threshold=0.22).run()
     if do_clustering_pca:
-        n_components = 3
-        Analysis.apply_pca(data_dpca2=data_dpca2, n_components=n_components)
+        n_components = 4
+        Analysis.apply_pca(data_dpca=data_dpca, n_components=n_components)
         # do analysis for reduced data
-        Analysis(data_tr=data_tr, data_dpca=data_dpca, data_dpca2=data_dpca2, img_prefix="pca_" + str(n_components),
+        Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="pca_" + str(n_components),
                  threshold=0.23).run()
 
 

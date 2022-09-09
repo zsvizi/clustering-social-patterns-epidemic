@@ -32,7 +32,7 @@ class Hierarchical:
         self.plot_dendrogram(res=res)
 
         #  Colored Dendrogram based on threshold (4 clusters)
-        # cutting the dendrogram where the gap between two successive merges is at thw largest.
+        # cutting the dendrogram where the gap between two successive merges is at the largest.
         #  horizontal   line is drawn   through it.
         self.plot_dendrogram_with_threshold(res=res, threshold=threshold)
 
