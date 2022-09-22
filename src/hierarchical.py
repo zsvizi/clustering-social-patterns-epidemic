@@ -73,7 +73,7 @@ class Hierarchical:
         return columns, dt, res
 
     def plot_ordered_distance_matrix(self, columns, dt):
-        plt.figure(figsize=(35, 28))
+        plt.figure(figsize=(36, 28))
         plt.title("Measure of closeness between countries",
                   fontsize=43,
                   fontweight="bold")
@@ -104,7 +104,7 @@ class Hierarchical:
         plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_2.png")
 
     def plot_dendrogram_with_threshold(self, res, threshold):
-        fig, axes = plt.subplots(1, 1, figsize=(36, 28), dpi=200)
+        fig, axes = plt.subplots(1, 1, figsize=(35, 25), dpi=200)
         sch.dendrogram(res,
                        color_threshold=threshold,  # sets the color of the links above the color_threshold
                        leaf_rotation=90,

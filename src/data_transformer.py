@@ -3,6 +3,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import numpy as np
 import pandas as pd
+from dimensionality import DIMENSION
 
 from hierarchical import Hierarchical
 from dataloader import DataLoader
@@ -24,6 +25,7 @@ class DataTransformer:
         self.data_mtx_dict = dict()
 
         self.data_contact_matrix = []  # 624 * 16
+        self.contact_matrix_transposed = []  # 624 * 16
 
         self.data_matrix = dict()
 
@@ -77,12 +79,16 @@ class DataTransformer:
             )
             self.data_contact_matrix.append(
                 simulation.beta * contact_matrix)
+            self.contact_matrix_transposed.append(
+                simulation.beta * contact_matrix.T
+            )
 
             self.data_clustering.append(
                 simulation.beta * contact_matrix[self.upper_tri_indexes])
         self.data_clustering = np.array(self.data_clustering)
         self.data_contact_matrix = np.array(self.data_contact_matrix)
         self.data_contact_matrix = np.vstack(self.data_contact_matrix)
+        self.contact_matrix_transposed = np.vstack(self.contact_matrix_transposed)
 
 
 class Clustering:
@@ -117,10 +123,14 @@ class Clustering:
 def main():
 
     do_clustering_pca = False
-    do_clustering_hierarchical = False
+    do_clustering_hierarchical = True
 
     # Create data for clustering
     data_tr = DataTransformer()
+    data_dpca = DIMENSION(country_names=data_tr.country_names, data_tr=data_tr,
+                          data_contact_matrix=data_tr.data_contact_matrix,
+                          contact_matrix_transposed=data_tr.contact_matrix_transposed)
+    data_dpca.apply_dpca()
 
     # Execute hierarchical
     if do_clustering_hierarchical:
@@ -135,12 +145,12 @@ def main():
     if do_clustering_pca:
         # Reduce dimensionality
         pca = PCA(n_components=4)
-        pca.fit(data_tr.data_clustering)
-        data_pca = pca.transform(data_tr.data_clustering)
+        pca.fit(data_dpca.pca_reduced)
+        data_pca = pca.transform(data_dpca.pca_reduced)
         print("Explained variance ratios:", pca.explained_variance_ratio_,
               "->", sum(pca.explained_variance_ratio_))
         # Execute clustering
-        clust = Clustering(data=data_tr)
+        clust = Clustering(data=data_dpca.pca_reduced)
         clust.run_clustering()
         clust.get_closest_points()
 
