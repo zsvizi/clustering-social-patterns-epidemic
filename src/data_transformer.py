@@ -122,7 +122,7 @@ class Clustering:
 
 def main():
 
-    do_clustering_pca = False
+    do_clustering_pca = True
     do_clustering_hierarchical = True
 
     # Create data for clustering

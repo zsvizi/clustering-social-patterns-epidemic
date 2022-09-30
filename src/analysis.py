@@ -46,16 +46,16 @@ def main():
     data_dpca.apply_dpca()
 
     # execute class 2D2PCA
-    print(data_dpca.pca_reduced.shape)
+    print(data_dpca.pca_reduced)
 
     # do analysis for original data
-    Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="original", threshold=0.22).run()
+    Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="original", threshold=0.25).run()
     if do_clustering_pca:
         n_components = 4
         Analysis.apply_pca(data_dpca=data_dpca, n_components=n_components)
         # do analysis for reduced data
         Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="pca_" + str(n_components),
-                 threshold=0.23).run()
+                 threshold=0.25).run()
 
 
 if __name__ == "__main__":

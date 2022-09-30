@@ -14,7 +14,7 @@ class DIMENSION:
         output: 39 countries each 2 * 2 matrix, and 39 * 4 (2 * 2 flatten matrix)
     """
     def __init__(self, data_tr, country_names, data_contact_matrix, contact_matrix_transposed):
-        self.result = None
+        self.arr_t = None
         self.arr_t2 = None
         self.data = DataLoader()
         self.country_names = country_names
@@ -23,7 +23,6 @@ class DIMENSION:
         self.data_contact_matrix = data_contact_matrix
         self.contact_matrix_transposed = contact_matrix_transposed
         self.pca_reduced = []
-        self.pca_reduced_country = {}
 
     def row_direction_pca(self):
 
@@ -43,7 +42,7 @@ class DIMENSION:
 
         print("Explained variance ratios:", pca1.explained_variance_ratio_,
               "->", sum(pca1.explained_variance_ratio_), "Eigenvectors:",
-              pca1.components_,  # (2, 16)
+              pca1.components_,  # (2, 16) X projection matrix
               "Singular values:", pca1.singular_values_)  # 2 leading eigenvalues
         # print("PC", pc)
 
@@ -51,11 +50,9 @@ class DIMENSION:
         split = np.array_split(pc, 39)
 
         # convert split to a numpy array
-        arr_t = np.array(split)    # 16 * 2 row direction matrix for each country
+        arr_t = np.array(split)   # 16 * 2 row direction matrix for each country
 
-        # Now we reshape the array
-        result = arr_t.reshape((39, 2, 16))
-        return result
+        return arr_t
 
     def alternative_direction_pca(self):
         # again,  centering and scaling the transposed data
@@ -78,25 +75,22 @@ class DIMENSION:
               "Singular values 2:", pca2.singular_values_)  # 2 leading eigenvalues
         # print("PC 2", pc2)
 
-        # Split concatenated array into 39 sub-arrays of equal size i.e. 39 countries.
-        split2 = np.array_split(pc2, 39)
-
-        # convert split2 to a numpy array
-        arr_t2 = np.array(split2)   # 16 * 2 column direction matrix for each country
-
-        return arr_t2   # shape ((39, 16, 2))
+        arr_t2 = pca2.components_   # 16 * 2 projection matrix for all countries
+        return arr_t2
 
     def apply_dpca(self):
-        self.result = self.row_direction_pca()
+        self.arr_t = self.row_direction_pca()
         self.arr_t2 = self.alternative_direction_pca()
 
-        matrix = np.matmul(self.result, self.arr_t2)
+        matrix = np.dot(self.arr_t2, self.arr_t)
 
         # let's flatten the matrix
         flatten = matrix.flatten()
 
         # Now reshape the matrix to get desired 39 * 4
         self.pca_reduced = flatten.reshape((39, 4))
+
+
 
 
 
