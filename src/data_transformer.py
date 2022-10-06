@@ -1,13 +1,6 @@
-
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
 import numpy as np
-import pandas as pd
-from dimensionality import DIMENSION
 
-from hierarchical import Hierarchical
 from dataloader import DataLoader
-from plotter import Plotter
 from simulation import Simulation
 
 
@@ -89,88 +82,3 @@ class DataTransformer:
         self.data_contact_matrix = np.array(self.data_contact_matrix)
         self.data_contact_matrix = np.vstack(self.data_contact_matrix)
         self.contact_matrix_transposed = np.vstack(self.contact_matrix_transposed)
-
-
-class Clustering:
-    def __init__(self, data):
-        self.data = data
-        self.n_cl = 3
-
-        self.k_means_pred = None
-        self.centroids = None
-        self.closest_points = None
-        self.closest_point_idx = None
-
-    def run_clustering(self):
-        k_means = KMeans(n_clusters=self.n_cl, random_state=1)
-        k_means.fit(self.data)
-        self.k_means_pred = k_means.predict(self.data)
-        self.centroids = k_means.cluster_centers_
-
-    def get_closest_points(self):
-        self.closest_point_idx = (-1) * np.ones(self.n_cl).astype(int)
-        for c_idx, centroid in enumerate(self.centroids):
-            min_dist = None
-            for idx, point in enumerate(self.data):
-                if self.k_means_pred[idx] == c_idx:
-                    dist = np.sum((point - centroid) ** 2)
-                    if min_dist is None or dist < min_dist:
-                        min_dist = dist
-                        self.closest_point_idx[c_idx] = idx
-        self.closest_points = self.data[np.array(self.closest_point_idx).astype(int), :2]
-
-
-def main():
-
-    do_clustering_pca = True
-    do_clustering_hierarchical = True
-
-    # Create data for clustering
-    data_tr = DataTransformer()
-    data_dpca = DIMENSION(country_names=data_tr.country_names, data_tr=data_tr,
-                          data_contact_matrix=data_tr.data_contact_matrix,
-                          contact_matrix_transposed=data_tr.contact_matrix_transposed)
-    # data_dpca.apply_dpca()
-
-    # Execute hierarchical
-    if do_clustering_hierarchical:
-        hierarchical = Hierarchical(data_transformer=data_tr, dimensionality=data_dpca,
-                                    country_names=data_tr.country_names,
-                                    img_prefix="original")
-        print("Euclidean distance:", np.round(hierarchical.get_euclidean_distance(), decimals=3))
-        print("Manhattan distance:", np.round(hierarchical.get_manhattan_distance(), decimals=3))
-        hierarchical.heatmap_ten_countries()
-        hierarchical.plot_distances()
-        hierarchical.plot_ordered_distance(threshold=0.23)
-        hierarchical.calculate_ordered_distance_matrix(threshold=1.7, verbose=True)
-
-    if do_clustering_pca:
-        # Reduce dimensionality
-        pca = PCA(n_components=4)
-        pca.fit(data_tr.data_clustering)
-        data_pca = pca.transform(data_tr.data_clustering)
-        print("Explained variance ratios:", pca.explained_variance_ratio_,
-              "->", sum(pca.explained_variance_ratio_))
-
-        # Execute clustering
-        clust = Clustering(data=data_tr.data_clustering)
-        clust.run_clustering()
-        clust.get_closest_points()
-
-        # Plot results for analysis
-        plotter = Plotter(clustering=clust,
-                          data_transformer=data_tr, country_names=data_tr)
-        plotter.plot_clustering()
-        centroids_orig = pca.inverse_transform(clust.centroids)
-        plotter.plot_heatmap_centroid(centroids=centroids_orig)
-        plotter.plot_heatmap_closest()
-
-        # List cluster members
-        for cluster in range(clust.n_cl):
-            print("Cluster", cluster, "(" + plotter.colors[cluster] + ")", ":",
-                  {data_tr.country_names[idx]: data_tr.data_all_dict[data_tr.country_names[idx]]["beta"]
-                   for idx, x in enumerate(clust.k_means_pred) if x == cluster})
-
-
-if __name__ == "__main__":
-    main()

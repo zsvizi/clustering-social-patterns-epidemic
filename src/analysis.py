@@ -1,9 +1,8 @@
 from sklearn.decomposition import PCA
+
 from data_transformer import DataTransformer
+from dimensionality import D2PCA
 from hierarchical import Hierarchical
-from data_transformer import DataTransformer
-from hierarchical import Hierarchical
-from dimensionality import DIMENSION
 
 
 class Analysis:
@@ -41,9 +40,9 @@ def main():
 
     # Create data for clustering
     data_tr = DataTransformer()
-    data_dpca = DIMENSION(country_names=data_tr.country_names, data_tr=data_tr,
-                          data_contact_matrix=data_tr.data_contact_matrix,
-                          contact_matrix_transposed=data_tr.contact_matrix_transposed)
+    data_dpca = D2PCA(country_names=data_tr.country_names, data_tr=data_tr,
+                      data_contact_matrix=data_tr.data_contact_matrix,
+                      contact_matrix_transposed=data_tr.contact_matrix_transposed)
     # data_dpca.apply_dpca()
     # execute class 2D2PCA
     # print(data_dpca.pca_reduced.shape)
@@ -61,7 +60,7 @@ def main():
 
     # do analysis of 2dpca
     if do_clustering_dpca:
-        DIMENSION.apply_dpca(self=data_dpca)
+        D2PCA.apply_dpca(self=data_dpca)
         Analysis(data_tr=data_tr, data_dpca=data_dpca, img_prefix="dpca_",
                  threshold=5.5).run()
 

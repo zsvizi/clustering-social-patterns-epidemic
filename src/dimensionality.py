@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -7,7 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
 
-class DIMENSION:
+class D2PCA:
     """
         This is (2D)^2 PCA class that applies both row-row and column-column directions to perform dimension reduction.
         input: 39 countries each 16 * 16 matrix concatenated row wise and column wise
