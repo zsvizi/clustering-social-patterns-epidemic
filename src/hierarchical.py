@@ -52,7 +52,7 @@ class Hierarchical:
                         interpolation="nearest",
                         vmin=0)
         plt.colorbar(az)
-        plt.savefig("./plots/" + self.img_prefix + "_" + "distances.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "distances.png")
 
     def calculate_ordered_distance_matrix(self, threshold, verbose: bool = True):
         dt, distance = self.get_distance_matrix()
@@ -86,7 +86,7 @@ class Hierarchical:
                    labels=columns,
                    rotation=0, fontsize=24)
         plt.colorbar(az)
-        plt.savefig("./plots/" + self.img_prefix + "_" + "ordered_distance_1.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_1.png")
 
     def plot_dendrogram(self, res):
         fig, axes = plt.subplots(1, 1, figsize=(35, 25), dpi=150)
@@ -101,7 +101,7 @@ class Hierarchical:
         plt.title('Cluster Analysis without threshold', fontsize=50, fontweight="bold")
         plt.ylabel('Distance between Clusters', fontsize=45)
         plt.tight_layout()
-        plt.savefig("./plots/" + self.img_prefix + "_" + "ordered_distance_2.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_2.png")
 
     def plot_dendrogram_with_threshold(self, res, threshold):
         fig, axes = plt.subplots(1, 1, figsize=(36, 28), dpi=200)
@@ -121,7 +121,7 @@ class Hierarchical:
         line = threshold
         plt.axhline(y=line, c='green', lw=3, linestyle='--')
         axes.tick_params(axis='both', which='major', labelsize=25)
-        plt.savefig("./plots/" + self.img_prefix + "_" + "ordered_distance_3.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_3.png")
 
     def get_manhattan_distance(self):
         """
