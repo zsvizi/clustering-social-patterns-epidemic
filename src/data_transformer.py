@@ -122,7 +122,7 @@ class Clustering:
 
 def main():
 
-    do_clustering_pca = False
+    do_clustering_pca = True
     do_clustering_hierarchical = True
 
     # Create data for clustering
@@ -130,14 +130,16 @@ def main():
     data_dpca = DIMENSION(country_names=data_tr.country_names, data_tr=data_tr,
                           data_contact_matrix=data_tr.data_contact_matrix,
                           contact_matrix_transposed=data_tr.contact_matrix_transposed)
-    data_dpca.apply_dpca()
+    # data_dpca.apply_dpca()
 
     # Execute hierarchical
     if do_clustering_hierarchical:
-        hierarchical = Hierarchical(data_transformer=data_tr, country_names=data_tr.country_names,
+        hierarchical = Hierarchical(data_transformer=data_tr, dimensionality=data_dpca,
+                                    country_names=data_tr.country_names,
                                     img_prefix="original")
         print("Euclidean distance:", np.round(hierarchical.get_euclidean_distance(), decimals=3))
         print("Manhattan distance:", np.round(hierarchical.get_manhattan_distance(), decimals=3))
+        hierarchical.heatmap_ten_countries()
         hierarchical.plot_distances()
         hierarchical.plot_ordered_distance(threshold=0.23)
         hierarchical.calculate_ordered_distance_matrix(threshold=1.7, verbose=True)
@@ -145,12 +147,13 @@ def main():
     if do_clustering_pca:
         # Reduce dimensionality
         pca = PCA(n_components=4)
-        pca.fit(data_dpca.pca_reduced)
-        data_pca = pca.transform(data_dpca.pca_reduced)
+        pca.fit(data_tr.data_clustering)
+        data_pca = pca.transform(data_tr.data_clustering)
         print("Explained variance ratios:", pca.explained_variance_ratio_,
               "->", sum(pca.explained_variance_ratio_))
+
         # Execute clustering
-        clust = Clustering(data=data_dpca.pca_reduced)
+        clust = Clustering(data=data_tr.data_clustering)
         clust.run_clustering()
         clust.get_closest_points()
 

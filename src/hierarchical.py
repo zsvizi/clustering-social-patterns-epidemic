@@ -9,9 +9,10 @@ from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 
 
 class Hierarchical:
-    def __init__(self, data_transformer, country_names, img_prefix,
+    def __init__(self, data_transformer, dimensionality, country_names, img_prefix,
                  dist: str = "euclidean"):
         self.data_tr = data_transformer
+        self.data_dpca = dimensionality
         self.country_names = country_names
         self.img_prefix = img_prefix
         if dist == "euclidean":
@@ -104,23 +105,24 @@ class Hierarchical:
         plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_2.png")
 
     def plot_dendrogram_with_threshold(self, res, threshold):
-        fig, axes = plt.subplots(1, 1, figsize=(35, 25), dpi=200)
+        fig, axes = plt.subplots(1, 1, figsize=(35, 26), dpi=140)
         sch.dendrogram(res,
                        color_threshold=threshold,  # sets the color of the links above the color_threshold
                        leaf_rotation=90,
-                       leaf_font_size=20,  # the size based on the number of nodes in the dendrogram.
+                       leaf_font_size=24,  # the size based on the number of nodes in the dendrogram.
                        show_leaf_counts=True,
                        labels=self.country_names,
-                       above_threshold_color='black',
+                       above_threshold_color='green',
                        ax=axes,
                        orientation="top",
                        get_leaves=True,
                        distance_sort=True)
-        plt.title('Cluster Analysis with a threshold', fontsize=44, fontweight="bold")
-        plt.ylabel('Distance between Clusters', fontsize=42)
+        plt.title('Cluster Analysis with a threshold', fontsize=49, fontweight="bold")
+        plt.ylabel('Distance between Clusters', fontsize=44)
+        plt.tight_layout()
         line = threshold
         plt.axhline(y=line, c='green', lw=3, linestyle='--')
-        axes.tick_params(axis='both', which='major', labelsize=25)
+        axes.tick_params(axis='both', which='major', labelsize=26)
         plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_3.png")
 
     def get_manhattan_distance(self):
@@ -129,6 +131,7 @@ class Hierarchical:
         :return matrix: square distance matrix with zero diagonals
         """
         manhattan_distance = manhattan_distances(self.data_tr.data_clustering)  # get pairwise manhattan distance
+        # manhattan_distance = manhattan_distances(self.data_dpca.pca_reduced)
         # convert the data into dataframe
         # replace the indexes of the distance with the country names
         # rename the columns and rows of the distance with country names and return a matrix distance
@@ -142,14 +145,18 @@ class Hierarchical:
         :return matrix: square distance matrix with zero diagonals
         """
         # convert the data into dataframe
-        euc_distance = euclidean_distances(self.data_tr.data_clustering)
+        euc_distance = euclidean_distances(self.data_dpca.pca_reduced)
+        # euc_distance = euclidean_distances(self.data_tr.data_clustering)
         dt = pd.DataFrame(euc_distance,
                           index=self.country_names, columns=self.country_names)  # rename rows and columns
         return dt, euc_distance
 
     def heatmap_ten_countries(self):
         #  plot the heatmap for the first 10 countries
+        plt.figure(figsize=(12, 10))
         distance, _ = self.get_distance_matrix()
         heatmap = distance.iloc[0: 10:, 0: 10]
         sns.heatmap(heatmap, annot=True, cmap="rainbow", vmin=0)
-        plt.show()
+        plt.savefig("../plots/" + self.img_prefix + "_" + "heatmap.png")
+
+
