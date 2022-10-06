@@ -9,10 +9,9 @@ from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 
 
 class Hierarchical:
-    def __init__(self, data_transformer, dimensionality, country_names, img_prefix,
+    def __init__(self, data_transformer, country_names, img_prefix,
                  dist: str = "euclidean"):
         self.data_tr = data_transformer
-        self.data_dpca = dimensionality
         self.country_names = country_names
         self.img_prefix = img_prefix
         if dist == "euclidean":
@@ -145,8 +144,7 @@ class Hierarchical:
         :return matrix: square distance matrix with zero diagonals
         """
         # convert the data into dataframe
-        euc_distance = euclidean_distances(self.data_dpca.pca_reduced)
-        # euc_distance = euclidean_distances(self.data_tr.data_clustering)
+        euc_distance = euclidean_distances(self.data_tr.data_clustering)
         dt = pd.DataFrame(euc_distance,
                           index=self.country_names, columns=self.country_names)  # rename rows and columns
         return dt, euc_distance
@@ -158,5 +156,3 @@ class Hierarchical:
         heatmap = distance.iloc[0: 10:, 0: 10]
         sns.heatmap(heatmap, annot=True, cmap="rainbow", vmin=0)
         plt.savefig("../plots/" + self.img_prefix + "_" + "heatmap.png")
-
-
