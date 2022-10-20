@@ -18,8 +18,7 @@ class DataLoader:
         """
         Constructor that defines file paths and loads all data
         """
-        scale = "_eu"
-        self._age_data_file = "../data/age_data" + scale + ".xlsx"
+        self._age_data_file = "../data/age_data.xlsx"
         self.contact_types = np.array(["home", "school", "work", "other"])
         self._contact_data_file = ["../data/contact_" + c_type + ".xls" for c_type in self.contact_types]
         self._model_parameters_data_file = "../data/model_parameters.json"
@@ -45,9 +44,6 @@ class DataLoader:
            ...
            "unit_N": {"pop": popN, "age": np.array([age_pop_N1, age_pop_N2, ..., age_pop_NK])}
           }
-        global_hungary_data: dict
-          e.g.
-          {"pop": popHun, "age": np.array([age_pop_Hun1, age_pop_Hun2, ..., age_pop_HunK])}
         :return: None
         """
         wb = xlrd.open_workbook(self._age_data_file)
@@ -120,9 +116,6 @@ class DataLoader:
            ...
            "param_P": float
           }
-        betas_data: dict
-          e.g.
-          {"unit_1": beta_1, "unit_2": beta_2, ..., "unit_N": beta_N}
         :return: None
         """
         # Load model parameters
