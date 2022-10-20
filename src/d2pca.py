@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
+from data_transformer import DataTransformer
+
 
 class D2PCA:
     """
@@ -10,12 +12,12 @@ class D2PCA:
         input: 39 countries each 16 * 16 matrix concatenated row wise and column wise
         output: 39 countries each 2 * 2 matrix, and 39 * 4 (2 * 2 flatten matrix)
     """
-    def __init__(self, data_tr, country_names):
+    def __init__(self, data_tr: DataTransformer, country_names: list):
         self.country_names = country_names
         self.data_tr = data_tr
 
-        self.data_contact_matrix = data_tr.data_contact_matrix
-        self.contact_matrix_transposed = data_tr.contact_matrix_transposed
+        self.data_contact_matrix = data_tr.data_cm_d2pca_col
+        self.contact_matrix_transposed = data_tr.data_cm_d2pca_row
 
         self.data_split = []
         self.proj_matrix_2 = []

@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.decomposition import PCA
 
 from data_transformer import DataTransformer
@@ -6,7 +8,7 @@ from hierarchical import Hierarchical
 
 
 class Analysis:
-    def __init__(self, data_tr, img_prefix, threshold,
+    def __init__(self, data_tr: DataTransformer, img_prefix, threshold,
                  n_components: int = 4,
                  dim_red: str = None, distance: str = "euclidean"):
         self.data_tr = data_tr
@@ -23,17 +25,13 @@ class Analysis:
                                     country_names=self.data_tr.country_names,
                                     img_prefix=self.img_prefix,
                                     dist=self.distance)
-        hierarchical.plot_distances()
-        # hierarchical.heatmap_ten_countries()
-        hierarchical.plot_ordered_distance(threshold=self.threshold)
-        hierarchical.hungary_contacts()
-        hierarchical.country_contacts()
+        hierarchical.run(threshold=self.threshold)
 
     def apply_pca(self):
         if self.dim_red == "PCA":
             pca = PCA(n_components=self.n_components)
-            pca.fit(self.data_tr.data_clustering)
-            data_pca = pca.transform(self.data_tr.data_clustering)
+            pca.fit(self.data_tr.data_cm_1dpca)
+            data_pca = pca.transform(self.data_tr.data_cm_1dpca)
             print("Explained variance ratios:",
                   pca.explained_variance_ratio_,
                   "->", sum(pca.explained_variance_ratio_))
@@ -43,7 +41,40 @@ class Analysis:
             data_pca = data_dpca.pca_reduced
         else:
             raise Exception("Provide a type for dimensionality reduction.")
-        self.data_tr.data_clustering = data_pca
+        self.data_tr.data_cm_pca = data_pca
+
+
+def hungary_contacts(data_tr):
+    for typ in ["contact_home", "contact_school", "contact_work", "contact_other", "contact_full"]:
+        # home contact
+        img = plt.imshow(data_tr.data_all_dict['Hungary'][typ],
+                         cmap='jet', vmin=0, vmax=4, alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        if typ == 'contact_full':
+            cbar = plt.colorbar(img)
+            tick_font_size = 40
+            cbar.ax.tick_params(labelsize=tick_font_size)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_" + typ.split("contact_")[1] + ".pdf")
+
+
+def country_contacts(data_tr):
+    for country in ["Armenia", "Belgium", "Estonia"]:
+        # contact matrix Armenia
+        matrix_to_plot = data_tr.data_all_dict[country]["contact_full"] * \
+            data_tr.data_all_dict[country]["beta"]
+        img = plt.imshow(matrix_to_plot,
+                         cmap='jet', vmin=0, vmax=0.2,
+                         alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        if country == "Estonia":
+            cbar = plt.colorbar(img)
+            tick_font_size = 25
+            cbar.ax.tick_params(labelsize=tick_font_size)
+        plt.savefig("../plots/" + country + ".pdf")
 
 
 def main():
@@ -51,11 +82,13 @@ def main():
     do_clustering_dpca = True
 
     # Create data for clustering
-    data_tr = DataTransformer()
+    susc = 1.0
+    base_r0 = 2.2
+    data_tr = DataTransformer(susc=susc, base_r0=base_r0)
 
-    # do analysis for original data
-    Analysis(data_tr=data_tr,
-             img_prefix="original", threshold=0.23).run()
+    # Create plots for the paper
+    hungary_contacts(data_tr=data_tr)
+    country_contacts(data_tr=data_tr)
 
     # Do analysis of the pca
     if do_clustering_pca:

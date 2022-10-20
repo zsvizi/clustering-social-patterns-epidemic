@@ -4,12 +4,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
-import seaborn as sns
 from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
+
+from data_transformer import DataTransformer
 
 
 class Hierarchical:
-    def __init__(self, data_transformer, country_names, img_prefix,
+    def __init__(self, data_transformer: DataTransformer, country_names: np.ndarray, img_prefix: str,
                  dist: str = "euclidean"):
         self.data_tr = data_transformer
         self.country_names = country_names
@@ -21,20 +22,29 @@ class Hierarchical:
 
         os.makedirs("../plots", exist_ok=True)
 
-    def plot_ordered_distance(self, threshold: float):
-        # calculate ordered distance matrix
-        columns, dt, res = self.calculate_ordered_distance_matrix(threshold=threshold)
+    def get_manhattan_distance(self):
+        """
+        Calculates Manhattan distance of a 39 * 136 matrix and returns 39*39 distance matrix
+        :return matrix: square distance matrix with zero diagonals
+        """
+        manhattan_distance = manhattan_distances(self.data_tr.data_cm_pca)  # get pairwise manhattan distance
+        # convert the data into dataframe
+        # replace the indexes of the distance with the country names
+        # rename the columns and rows of the distance with country names and return a matrix distance
+        dt = pd.DataFrame(manhattan_distance,
+                          index=self.country_names, columns=self.country_names)
+        return dt, manhattan_distance
 
-        # plot ordered distance matrix
-        self.plot_ordered_distance_matrix(columns=columns, dt=dt)
-
-        #  Original uncolored Dendrogram
-        self.plot_dendrogram(res=res)
-
-        #  Colored Dendrogram based on threshold (4 clusters)
-        # cutting the dendrogram where the gap between two successive merges is at the largest.
-        #  horizontal   line is drawn   through it.
-        self.plot_dendrogram_with_threshold(res=res, threshold=threshold)
+    def get_euclidean_distance(self) -> np.array:
+        """
+        Calculates euclidean distance of a 39 * 136 matrix and returns 39*39 distance matrix
+        :return matrix: square distance matrix with zero diagonals
+        """
+        # convert the data into dataframe
+        euc_distance = euclidean_distances(self.data_tr.data_cm_pca)
+        dt = pd.DataFrame(euc_distance,
+                          index=self.country_names, columns=self.country_names)  # rename rows and columns
+        return dt, euc_distance
 
     def plot_distances(self):
         distance, _ = self.get_distance_matrix()
@@ -53,6 +63,21 @@ class Hierarchical:
                         vmin=0)
         plt.colorbar(az)
         plt.savefig("../plots/" + self.img_prefix + "_" + "distances.pdf")
+
+    def run(self, threshold: float):
+        # calculate ordered distance matrix
+        columns, dt, res = self.calculate_ordered_distance_matrix(threshold=threshold)
+
+        # plot ordered distance matrix
+        self.plot_ordered_distance_matrix(columns=columns, dt=dt)
+
+        #  Original uncolored Dendrogram
+        self.plot_dendrogram(res=res)
+
+        #  Colored Dendrogram based on threshold (4 clusters)
+        # cutting the dendrogram where the gap between two successive merges is at the largest.
+        #  horizontal   line is drawn   through it.
+        self.plot_dendrogram_with_threshold(res=res, threshold=threshold)
 
     def calculate_ordered_distance_matrix(self, threshold, verbose: bool = True):
         dt, distance = self.get_distance_matrix()
@@ -121,145 +146,3 @@ class Hierarchical:
         plt.tight_layout()
         axes.tick_params(axis='both', which='major', labelsize=26)
         plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_3.pdf")
-
-    def get_manhattan_distance(self):
-        """
-        Calculates Manhattan distance of a 39 * 136 matrix and returns 39*39 distance matrix
-        :return matrix: square distance matrix with zero diagonals
-        """
-        manhattan_distance = manhattan_distances(self.data_tr.data_clustering)  # get pairwise manhattan distance
-        # manhattan_distance = manhattan_distances(self.data_dpca.pca_reduced)
-        # convert the data into dataframe
-        # replace the indexes of the distance with the country names
-        # rename the columns and rows of the distance with country names and return a matrix distance
-        dt = pd.DataFrame(manhattan_distance,
-                          index=self.country_names, columns=self.country_names)
-        return dt, manhattan_distance
-
-    def get_euclidean_distance(self) -> np.array:
-        """
-        Calculates euclidean distance of a 39 * 136 matrix and returns 39*39 distance matrix
-        :return matrix: square distance matrix with zero diagonals
-        """
-        # convert the data into dataframe
-        euc_distance = euclidean_distances(self.data_tr.data_clustering)
-        dt = pd.DataFrame(euc_distance,
-                          index=self.country_names, columns=self.country_names)  # rename rows and columns
-        return dt, euc_distance
-
-    def heatmap_ten_countries(self):
-        #  plot the heatmap for the first 10 countries
-        plt.figure(figsize=(12, 10))
-        distance, _ = self.get_distance_matrix()
-        heatmap = distance.iloc[0: 10:, 0: 10]
-        sns.heatmap(heatmap, annot=True, cmap="rainbow", vmin=0)
-        plt.savefig("../plots/" + self.img_prefix + "_" + "heatmap.pdf")
-
-    def hungary_contacts(self):
-        # home contact
-        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_home'], cmap='jet', vmin=0, vmax=4, alpha=.9,
-                   interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=24)
-        plt.yticks(ticks, fontsize=24)
-        plt.savefig("../plots/" + "hungary_home.pdf")
-        plt.show()
-
-        # school contact
-        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_school'], cmap='jet', vmin=0, vmax=4, alpha=.9,
-                   interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=24)
-        plt.yticks(ticks, fontsize=24)
-        plt.savefig("../plots/" + "hungary_school.pdf")
-        plt.show()
-
-        # work contact
-        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_work'], cmap='jet', vmin=0, vmax=4, alpha=.9,
-                   interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=24)
-        plt.yticks(ticks, fontsize=24)
-        plt.savefig("../plots/" + "hungary_work.pdf")
-        plt.show()
-
-        # other contact
-        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_other'], cmap='jet', vmin=0, vmax=4, alpha=.9,
-                   interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=24)
-        plt.yticks(ticks, fontsize=24)
-        plt.savefig("../plots/" + "hungary_other.pdf")
-        plt.show()
-
-        # all contact matrix with the column bar
-        full = plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_full'],
-                          cmap='jet', vmin=0, vmax=4, alpha=.9, interpolation="nearest")
-        cbar = plt.colorbar(full)
-        tick_font_size = 40
-        cbar.ax.tick_params(labelsize=tick_font_size)
-        plt.xticks(ticks, fontsize=24)
-        plt.yticks(ticks, fontsize=24)
-        plt.savefig("../plots/" + "hungary_full.pdf")
-        plt.show()
-
-    def country_contacts(self):
-        # contact matrix Armenia
-        plt.imshow(self.data_tr.data_matrix['Armenia'], cmap='jet', vmin=0, vmax=0.2,
-                   alpha=.9, interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=20)
-        plt.yticks(ticks, fontsize=20)
-        plt.savefig("../plots/" + "Armenia.pdf")
-        plt.show()
-
-        # contact matrix Belgium
-        plt.imshow(self.data_tr.data_matrix['Belgium'], cmap='jet', vmin=0, vmax=0.2,
-                   alpha=.9, interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=20)
-        plt.yticks(ticks, fontsize=20)
-        plt.savefig("../plots/" + "Belgium.pdf")
-        plt.show()
-
-        # contact matrix Estonia
-        plt.imshow(self.data_tr.data_matrix['Estonia'], cmap='jet', vmin=0, vmax=0.2,
-                   alpha=.9, interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=20)
-        plt.yticks(ticks, fontsize=20)
-        plt.savefig("../plots/" + "Estonia.pdf")
-        plt.show()
-
-        # contact matrix Italy
-        plt.imshow(self.data_tr.data_matrix['Italy'], cmap='jet', vmin=0, vmax=0.2, alpha=.9,
-                   interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=20)
-        plt.yticks(ticks, fontsize=20)
-        plt.savefig("../plots/" + "Italia.pdf")
-        plt.show()
-
-        # execute Netherlands contact matrix with the column bar
-        Net = plt.imshow(self.data_tr.data_matrix['Netherlands'],
-                         cmap='jet', vmin=0, vmax=0.2, alpha=.9, interpolation="nearest")
-        ticks = np.arange(0, 16, 2)
-        plt.xticks(ticks, fontsize=20)
-        plt.yticks(ticks, fontsize=20)
-        cbar = plt.colorbar(Net)
-        tick_font_size = 25
-        cbar.ax.tick_params(labelsize=tick_font_size)
-        plt.savefig("../plots/" + "Netherlands.pdf")
-        plt.show()
-
-
-
-
-
-
-
-
-
-
-
-

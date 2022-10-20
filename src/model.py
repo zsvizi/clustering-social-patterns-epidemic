@@ -26,7 +26,7 @@ class RostHungaryModel:
         self.contact_matrix = contact_matrix
         self.parameters = parameters
         self.r0 = self.get_r0_value()
-        self.time_max = self._get_t_max()
+        self.time_max = 400
         self.time_vector = np.linspace(0, self.time_max, self.time_max)
 
         self.solution = None
@@ -79,20 +79,6 @@ class RostHungaryModel:
         ]
         v = np.array(model_eq).flatten()
         return v
-
-    def _get_t_max(self):
-        if self.r0 < 1:
-            return 200
-        elif self.r0 < 1.1:
-            return 5500
-        elif self.r0 < 1.2:
-            return 1200
-        elif self.r0 < 1.3:
-            return 900
-        elif self.r0 < 1.6:
-            return 600
-        else:
-            return 400
 
     def _get_initial_values(self):
         init_values = [self.s_0, self.l1_0, self.l2_0, self.ip_0, self.ia1_0, self.ia2_0, self.ia3_0, self.is1_0,
