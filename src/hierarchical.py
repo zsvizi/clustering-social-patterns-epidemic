@@ -52,7 +52,7 @@ class Hierarchical:
                         interpolation="nearest",
                         vmin=0)
         plt.colorbar(az)
-        plt.savefig("../plots/" + self.img_prefix + "_" + "distances.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "distances.pdf")
 
     def calculate_ordered_distance_matrix(self, threshold, verbose: bool = True):
         dt, distance = self.get_distance_matrix()
@@ -73,20 +73,20 @@ class Hierarchical:
         return columns, dt, res
 
     def plot_ordered_distance_matrix(self, columns, dt):
-        plt.figure(figsize=(36, 28))
-        plt.title("Measure of closeness between countries",
-                  fontsize=43,
-                  fontweight="bold")
+        plt.figure(figsize=(45, 35), dpi=300)
         az = plt.imshow(dt, cmap='rainbow',
-                        alpha=.9, interpolation="nearest", vmin=0)
+                        alpha=.9, interpolation="nearest")
         plt.xticks(ticks=np.arange(len(columns)),
                    labels=columns,
-                   rotation=90, fontsize=24)
+                   rotation=90, fontsize=32)
         plt.yticks(ticks=np.arange(len(columns)),
                    labels=columns,
-                   rotation=0, fontsize=24)
-        plt.colorbar(az)
-        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_1.png")
+                   rotation=0, fontsize=45)
+        cbar = plt.colorbar(az)
+        tick_font_size = 115
+        cbar.ax.tick_params(labelsize=tick_font_size)
+
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_1.pdf")
 
     def plot_dendrogram(self, res):
         fig, axes = plt.subplots(1, 1, figsize=(35, 25), dpi=150)
@@ -101,28 +101,26 @@ class Hierarchical:
         plt.title('Cluster Analysis without threshold', fontsize=50, fontweight="bold")
         plt.ylabel('Distance between Clusters', fontsize=45)
         plt.tight_layout()
-        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_2.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_2.pdf")
 
     def plot_dendrogram_with_threshold(self, res, threshold):
-        fig, axes = plt.subplots(1, 1, figsize=(35, 26), dpi=140)
+        fig, axes = plt.subplots(1, 1, figsize=(35, 24), dpi=300)
         sch.dendrogram(res,
                        color_threshold=threshold,  # sets the color of the links above the color_threshold
                        leaf_rotation=90,
                        leaf_font_size=24,  # the size based on the number of nodes in the dendrogram.
                        show_leaf_counts=True,
                        labels=self.country_names,
-                       above_threshold_color='green',
+                       above_threshold_color='blue',
                        ax=axes,
                        orientation="top",
                        get_leaves=True,
                        distance_sort=True)
         plt.title('Cluster Analysis with a threshold', fontsize=49, fontweight="bold")
-        plt.ylabel('Distance between Clusters', fontsize=44)
+        plt.ylabel('Distance between Clusters', fontsize=30)
         plt.tight_layout()
-        line = threshold
-        plt.axhline(y=line, c='green', lw=3, linestyle='--')
         axes.tick_params(axis='both', which='major', labelsize=26)
-        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_3.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "ordered_distance_3.pdf")
 
     def get_manhattan_distance(self):
         """
@@ -155,4 +153,113 @@ class Hierarchical:
         distance, _ = self.get_distance_matrix()
         heatmap = distance.iloc[0: 10:, 0: 10]
         sns.heatmap(heatmap, annot=True, cmap="rainbow", vmin=0)
-        plt.savefig("../plots/" + self.img_prefix + "_" + "heatmap.png")
+        plt.savefig("../plots/" + self.img_prefix + "_" + "heatmap.pdf")
+
+    def hungary_contacts(self):
+        # home contact
+        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_home'], cmap='jet', vmin=0, vmax=4, alpha=.9,
+                   interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_home.pdf")
+        plt.show()
+
+        # school contact
+        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_school'], cmap='jet', vmin=0, vmax=4, alpha=.9,
+                   interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_school.pdf")
+        plt.show()
+
+        # work contact
+        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_work'], cmap='jet', vmin=0, vmax=4, alpha=.9,
+                   interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_work.pdf")
+        plt.show()
+
+        # other contact
+        plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_other'], cmap='jet', vmin=0, vmax=4, alpha=.9,
+                   interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_other.pdf")
+        plt.show()
+
+        # all contact matrix with the column bar
+        full = plt.imshow(self.data_tr.data_all_dict['Hungary']['contact_full'],
+                          cmap='jet', vmin=0, vmax=4, alpha=.9, interpolation="nearest")
+        cbar = plt.colorbar(full)
+        tick_font_size = 40
+        cbar.ax.tick_params(labelsize=tick_font_size)
+        plt.xticks(ticks, fontsize=24)
+        plt.yticks(ticks, fontsize=24)
+        plt.savefig("../plots/" + "hungary_full.pdf")
+        plt.show()
+
+    def country_contacts(self):
+        # contact matrix Armenia
+        plt.imshow(self.data_tr.data_matrix['Armenia'], cmap='jet', vmin=0, vmax=0.2,
+                   alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        plt.savefig("../plots/" + "Armenia.pdf")
+        plt.show()
+
+        # contact matrix Belgium
+        plt.imshow(self.data_tr.data_matrix['Belgium'], cmap='jet', vmin=0, vmax=0.2,
+                   alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        plt.savefig("../plots/" + "Belgium.pdf")
+        plt.show()
+
+        # contact matrix Estonia
+        plt.imshow(self.data_tr.data_matrix['Estonia'], cmap='jet', vmin=0, vmax=0.2,
+                   alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        plt.savefig("../plots/" + "Estonia.pdf")
+        plt.show()
+
+        # contact matrix Italy
+        plt.imshow(self.data_tr.data_matrix['Italy'], cmap='jet', vmin=0, vmax=0.2, alpha=.9,
+                   interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        plt.savefig("../plots/" + "Italia.pdf")
+        plt.show()
+
+        # execute Netherlands contact matrix with the column bar
+        Net = plt.imshow(self.data_tr.data_matrix['Netherlands'],
+                         cmap='jet', vmin=0, vmax=0.2, alpha=.9, interpolation="nearest")
+        ticks = np.arange(0, 16, 2)
+        plt.xticks(ticks, fontsize=20)
+        plt.yticks(ticks, fontsize=20)
+        cbar = plt.colorbar(Net)
+        tick_font_size = 25
+        cbar.ax.tick_params(labelsize=tick_font_size)
+        plt.savefig("../plots/" + "Netherlands.pdf")
+        plt.show()
+
+
+
+
+
+
+
+
+
+
+
+

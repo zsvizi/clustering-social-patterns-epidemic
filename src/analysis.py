@@ -26,6 +26,8 @@ class Analysis:
         hierarchical.plot_distances()
         # hierarchical.heatmap_ten_countries()
         hierarchical.plot_ordered_distance(threshold=self.threshold)
+        hierarchical.hungary_contacts()
+        hierarchical.country_contacts()
 
     def apply_pca(self):
         if self.dim_red == "PCA":
@@ -45,7 +47,7 @@ class Analysis:
 
 
 def main():
-    do_clustering_pca = False
+    do_clustering_pca = True
     do_clustering_dpca = True
 
     # Create data for clustering

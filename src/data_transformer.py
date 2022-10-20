@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib as plt
+import seaborn as sns
 
 from dataloader import DataLoader
 from simulation import Simulation
@@ -82,3 +84,4 @@ class DataTransformer:
         self.data_contact_matrix = np.array(self.data_contact_matrix)
         self.data_contact_matrix = np.vstack(self.data_contact_matrix)
         self.contact_matrix_transposed = np.vstack(self.contact_matrix_transposed)
+
