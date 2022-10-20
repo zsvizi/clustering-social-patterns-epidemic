@@ -26,8 +26,8 @@ class Analysis:
         hierarchical.plot_distances()
         # hierarchical.heatmap_ten_countries()
         hierarchical.plot_ordered_distance(threshold=self.threshold)
-        hierarchical.hungary_contacts()
-        hierarchical.country_contacts()
+        # hierarchical.hungary_contacts()
+        # hierarchical.country_contacts()
 
     def apply_pca(self):
         if self.dim_red == "PCA":

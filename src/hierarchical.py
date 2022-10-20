@@ -223,12 +223,12 @@ class Hierarchical:
         plt.show()
 
         # contact matrix Estonia
-        plt.imshow(self.data_tr.data_matrix['Estonia'], cmap='jet', vmin=0, vmax=0.2,
+        plt.imshow(self.data_tr.data_matrix['Netherlands'], cmap='jet', vmin=0, vmax=0.2,
                    alpha=.9, interpolation="nearest")
         ticks = np.arange(0, 16, 2)
         plt.xticks(ticks, fontsize=20)
         plt.yticks(ticks, fontsize=20)
-        plt.savefig("../plots/" + "Estonia.pdf")
+        plt.savefig("../plots/" + "Netherlands.pdf")
         plt.show()
 
         # contact matrix Italy
@@ -240,8 +240,8 @@ class Hierarchical:
         plt.savefig("../plots/" + "Italia.pdf")
         plt.show()
 
-        # execute Netherlands contact matrix with the column bar
-        Net = plt.imshow(self.data_tr.data_matrix['Netherlands'],
+        # execute Estonia contact matrix with the column bar
+        Net = plt.imshow(self.data_tr.data_matrix['Estonia'],
                          cmap='jet', vmin=0, vmax=0.2, alpha=.9, interpolation="nearest")
         ticks = np.arange(0, 16, 2)
         plt.xticks(ticks, fontsize=20)
@@ -249,7 +249,7 @@ class Hierarchical:
         cbar = plt.colorbar(Net)
         tick_font_size = 25
         cbar.ax.tick_params(labelsize=tick_font_size)
-        plt.savefig("../plots/" + "Netherlands.pdf")
+        plt.savefig("../plots/" + "Estonia.pdf")
         plt.show()
 
 
