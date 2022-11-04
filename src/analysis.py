@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.decomposition import PCA
@@ -78,6 +80,8 @@ def country_contacts(data_tr):
 
 
 def main():
+    os.makedirs("../plots", exist_ok=True)
+
     do_clustering_pca = True
     do_clustering_dpca = True
 
