@@ -70,15 +70,6 @@ class DataLoader:
 
         self.global_unit_set = {"pop": population_global, "age": age_distribution_global}
         self.age_data = output
-        if not os.path.isdir('../../sens_data/population'):
-            os.makedirs('../../sens_data/population')
-            for key in self.age_data.keys():
-                to_save = {"N": {
-                    "value": [int(x) for x in self.age_data[key]['age']],
-                    "description": "Population"}
-                }
-                with open('../sens_data/population/model_parameters_' + key + '.json', 'w+') as fp:
-                    json.dump(to_save, fp, indent=4)
 
     def _get_contact_mtx(self):
         """
